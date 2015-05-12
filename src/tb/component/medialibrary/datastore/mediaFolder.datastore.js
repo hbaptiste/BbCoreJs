@@ -2,36 +2,36 @@ define(['component!datastore', 'jquery', 'jsclass'], function (DataStore, jQuery
     'use strict';
 
     var createDataStore = function () {
-        var restDataStore = new DataStore.RestDataStore({
-            resourceEndpoint: 'media-folder'
-        });
-
-        restDataStore.addFilter("byMediaFolder", function (value, restParams) {
-            restParams.criterias.parent_uid = value;
-            return restParams;
-        });
-
-        DataStore.RestDataStore.define('moveNode', function (node, data) {
-            var dfd = new jQuery.Deferred(),
-            self = this;
-            self.trigger("processing");
-            this.restHandler.patch(this.config.resourceEndpoint, data, {
-                id: node.uid
-            }).done(function () {
-                dfd.resolve(data);
-                self.trigger('dataUpdate', data);
-                self.trigger("doneProcessing");
-            }).fail(function () {
-                self.trigger("doneProcessing");
-                dfd.reject();
+            var restDataStore = new DataStore.RestDataStore({
+                resourceEndpoint: 'media-folder'
             });
-            return dfd.promise();
-        });
-        
-        return restDataStore;
-    }
+
+            restDataStore.addFilter("byMediaFolder", function (value, restParams) {
+                restParams.criterias.parent_uid = value;
+                return restParams;
+            });
+
+            DataStore.RestDataStore.define('moveNode', function (node, data) {
+                var dfd = new jQuery.Deferred(),
+                    self = this;
+                self.trigger("processing");
+                this.restHandler.patch(this.config.resourceEndpoint, data, {
+                    id: node.uid
+                }).done(function () {
+                    dfd.resolve(data);
+                    self.trigger('dataUpdate', data);
+                    self.trigger("doneProcessing");
+                }).fail(function () {
+                    self.trigger("doneProcessing");
+                    dfd.reject();
+                });
+                return dfd.promise();
+            });
+
+            return restDataStore;
+        };
 
     return {
-       getDataStore : createDataStore
-    }
+        getDataStore: createDataStore
+    };
 });

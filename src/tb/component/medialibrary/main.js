@@ -528,9 +528,9 @@ define(
                 defaultConfig = jQuery.extend(true, defaultConfig, config || {});
             },
             createMediaLibrary: function (userConfig) {
+                userConfig = userConfig || {};
                 var defConfig = jQuery.extend(true, {}, defaultConfig),
-                userConfig = userConfig || {},
-                config = jQuery.extend(true, defConfig, userConfig),
+                    config = jQuery.extend(true, defConfig, userConfig),
                     mediaLibrary = new MediaLibrary(config);
                 return mediaLibrary;
             },

@@ -42,7 +42,7 @@ define(['component!datastore', 'jsclass'], function (DataStore) {
         });
 
         return restDataStore;
-    }
+    };
 
     return {
         getDataStore: createDataStore

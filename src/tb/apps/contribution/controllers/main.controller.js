@@ -55,8 +55,8 @@ define(['Core', 'contribution.view.index', 'jquery'], function (Core, IndexView,
         },
 
         showMediaLibraryService: function (config) {
-            var self = this,
-                config = {} || config;
+            var self = this;
+            config = config || {};
             if (!this.mediaLibraryIsLoaded) {
                 require(['component!medialibrary'], function (MediaLibraryComponent) {
                     if (self.mediaLibraryIsLoaded) { return; }

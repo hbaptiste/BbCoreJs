@@ -25,7 +25,6 @@ define(
     [
         'Core',
         'Core/Renderer',
-        'nunjucks',
         'jquery',
         'component!popin',
         'component!mask',
@@ -34,7 +33,7 @@ define(
         'text!item.templates/media.deletemode.tpl',
         'text!item.templates/media.editmode.tpl'
     ],
-    function (Api, Renderer, nunjucks, jQuery, PopInManager, MaskManager) {
+    function (Api, Renderer, jQuery, PopInManager, MaskManager) {
         'use strict';
 
         var MediaItemRenderer = new JS.Class({
@@ -52,8 +51,8 @@ define(
             bytetoSize: function (bytes) {
                 var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'],
                     i;
-                if (bytes == 0) return '0 Byte';
-                    i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+                if (bytes === 0) { return '0 Byte'; }
+                i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
                 return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
             },
 
