@@ -24,6 +24,7 @@ require.config({
 define(
     [
         'Core',
+        'Core/Renderer',
         'nunjucks',
         'jquery',
         'component!popin',
@@ -33,7 +34,7 @@ define(
         'text!item.templates/media.deletemode.tpl',
         'text!item.templates/media.editmode.tpl'
     ],
-    function (Api, nunjucks, jQuery, PopInManager, MaskManager) {
+    function (Api, Renderer, nunjucks, jQuery, PopInManager, MaskManager) {
         'use strict';
 
         var MediaItemRenderer = new JS.Class({
@@ -45,6 +46,15 @@ define(
                     'deleteContent': require('text!item.templates/media.deletemode.tpl')
                 };
                 this.mask = MaskManager.createMask({});
+                Renderer.addFilter("bytesToSize", this.bytetoSize);
+            },
+
+            bytetoSize: function (bytes) {
+                var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'],
+                    i;
+                if (bytes == 0) return '0 Byte';
+                    i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+                return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
             },
 
             initPopin: function () {
@@ -141,7 +151,7 @@ define(
                         isOrphaned: (data.length === 0),
                         items: data
                     };
-                    content = nunjucks.renderString(self.templates.deleteContent, templateData);
+                    content = Renderer.render(self.templates.deleteContent, templateData);
                     self.popin.setContent(jQuery(content));
                     self.addButtons();
                     self.popin.display();
@@ -169,7 +179,7 @@ define(
                     mode = this.mode;
                 }
                 var template = this.templates[mode],
-                    data = nunjucks.renderString(template, item); //mode is unused
+                    data =  Renderer.render(template, item); //mode is unused
                 return this.bindItemEvents(data, item);
             },
 

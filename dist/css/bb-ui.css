@@ -7480,6 +7480,7 @@ colpick Color Picker / colpick.com
   right: 0;
   min-height: 192px;
   line-height: 1.4em;
+  /*Typography*/
   /*navbar*/
   /*ICO*/
   /*BADGE*/
@@ -7553,6 +7554,7 @@ colpick Color Picker / colpick.com
   /*Context menu*/
   /*Tab dialog*/
   /*Status*/
+  /*Rights*/
   /*Loader*/
 }
 #bb5-ui.bb5-hidden {
@@ -7604,6 +7606,32 @@ colpick Color Picker / colpick.com
 #bb5-ui .bb5-border {
   border: 1px solid #cecece;
   padding: 14px 7px;
+}
+#bb5-ui h1,
+#bb5-ui .h1 {
+  font-size: 16px;
+  font-weight: 700;
+}
+#bb5-ui h2,
+#bb5-ui .h2 {
+  font-size: 14px;
+  font-weight: 700;
+}
+#bb5-ui h3,
+#bb5-ui .h3 {
+  font-size: 14px;
+}
+#bb5-ui h4,
+#bb5-ui .h4 {
+  font-size: 14px;
+}
+#bb5-ui h5,
+#bb5-ui .h5 {
+  font-size: 11px;
+}
+#bb5-ui h6,
+#bb5-ui .h6 {
+  font-size: 10px;
 }
 #bb5-ui #bb5-navbar-primary #bb5-maintabs:after,
 #bb5-ui #bb5-navbar-primary #bb5-maintabs:before {
@@ -8305,8 +8333,10 @@ fieldset[disabled] #bb5-ui .btn-online.active {
 #bb5-ui .tab-pane .checkbox-inline {
   padding-left: 15px;
 }
-#bb5-ui .tab-pane input[type=radio],
-#bb5-ui .tab-pane input[type=checkbox] {
+#bb5-ui .tab-pane .radio-inline input[type=radio],
+#bb5-ui .tab-pane .checkbox-inline input[type=radio],
+#bb5-ui .tab-pane .radio-inline input[type=checkbox],
+#bb5-ui .tab-pane .checkbox-inline input[type=checkbox] {
   margin-top: 1px;
   margin-left: -15px;
 }
@@ -8375,8 +8405,8 @@ fieldset[disabled] #bb5-ui .btn-online.active {
   margin-right: 6px;
 }
 #bb5-ui .bb5-list-data-toolbar {
-  background-color: #F3F3F3;
-  border: 1px solid #CDCDCD;
+  background-color: #f3f3f3;
+  border: 1px solid #cdcdcd;
   padding: 0 8px;
   margin: 0 0 4px 0;
 }
@@ -8400,7 +8430,7 @@ fieldset[disabled] #bb5-ui .btn-online.active {
 #bb5-ui .bb5-list-media li {
   position: relative;
   float: left;
-  height: 219px;
+  height: 246px;
   width: 181px;
   margin: 0 11px 11px 0;
   list-style-type: none;
@@ -8484,7 +8514,7 @@ fieldset[disabled] #bb5-ui .btn-online.active {
 }
 #bb5-ui .bb5-list-media.bb5-list-media-is-list li p:nth-child(2) {
   position: absolute;
-  top: 9px;
+  top: 2px;
   left: 89px;
   height: 17px;
   width: 417px;
@@ -8496,7 +8526,7 @@ fieldset[disabled] #bb5-ui .btn-online.active {
 #bb5-ui .bb5-list-media.bb5-list-media-is-list li p:nth-child(3) {
   margin-bottom: inherit;
   position: absolute;
-  top: 27px;
+  top: 20px;
   left: 89px;
 }
 #bb5-ui .bb5-list-media.bb5-list-media-is-list li p:nth-child(4) {
@@ -9677,6 +9707,48 @@ fieldset[disabled] #bb5-ui .btn-online.active {
 #bb5-ui .bb-block:hover {
   border-color: #e34c26;
   cursor: pointer;
+}
+#bb5-ui .table-rights {
+  margin-bottom: 3em;
+}
+#bb5-ui .table-rights > th,
+#bb5-ui .table-rights > td {
+  text-align: center;
+}
+#bb5-ui .table-rights .is-child {
+  padding-left: 1.1em;
+}
+#bb5-ui .table-rights .table-col-1 {
+  width: 40%;
+  text-align: left;
+}
+#bb5-ui .table-rights .table-col-2 {
+  width: 12%;
+}
+#bb5-ui .table-rights .table-col-3 {
+  width: 12%;
+}
+#bb5-ui .table-rights .table-col-4 {
+  width: 12%;
+}
+#bb5-ui .table-rights .table-col-5 {
+  width: 12%;
+}
+#bb5-ui .table-rights .table-col-6 {
+  width: 12%;
+}
+#bb5-ui .table-rights > thead > tr {
+  border: 1px solid #cdcdcd;
+  background-color: #f3f3f3;
+}
+#bb5-ui .table-rights > thead > tr > th {
+  border-bottom: 1px solid #cdcdcd;
+  vertical-align: middle;
+}
+#bb5-ui .table-rights > tbody > tr > td,
+#bb5-ui .table-rights > tbody > tr > th {
+  padding-bottom: 5px;
+  padding-top: 5px;
 }
 #bb5-ui .spinner {
   margin: 0 auto;

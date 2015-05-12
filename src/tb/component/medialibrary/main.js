@@ -155,11 +155,11 @@ define(
 
                 addButtons: function () {
                     var self = this;
-                    this.dialog.addButton("Add & Close", function () {
+                    this.dialog.addButton(trans("add_and_close"), function () {
                         self.triggerEvent = true;
                         self.close();
                     });
-                    this.dialog.addButton("Cancel", function () {
+                    this.dialog.addButton(trans("cancel"), function () {
                         self.triggerEvent = false;
                         self.close();
                     });
@@ -528,8 +528,9 @@ define(
                 defaultConfig = jQuery.extend(true, defaultConfig, config || {});
             },
             createMediaLibrary: function (userConfig) {
-                userConfig = userConfig || {};
-                var config = jQuery.extend(true, defaultConfig, userConfig),
+                var defConfig = jQuery.extend(true, {}, defaultConfig),
+                userConfig = userConfig || {},
+                config = jQuery.extend(true, defConfig, userConfig),
                     mediaLibrary = new MediaLibrary(config);
                 return mediaLibrary;
             },

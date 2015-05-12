@@ -75,8 +75,8 @@ define(
                 return Core.ApplicationManager.invokeService('page.main.newPage', {'parent_uid': Core.get('page.uid'), 'flag': 'redirect'});
             },
 
-            showMediaLibrary: function (config) {
-                return Core.ApplicationManager.invokeService('contribution.main.showMediaLibrary', config);
+            showMediaLibrary: function () {
+                return Core.ApplicationManager.invokeService('contribution.main.showMediaLibrary');
             },
 
             manageMenu: function (event) {
