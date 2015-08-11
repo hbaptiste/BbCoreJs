@@ -25,12 +25,14 @@ define(
         'underscore',
         'jsclass',
         'Core/DriverHandler',
-        'Core/RestDriver'
+        'Core/RestDriver',
+        'cryptojs.md5'
     ],
     function (require, jQuery, BackBone, Core, underscore) {
         'use strict';
         var CoreDriverHandler = require('Core/DriverHandler'),
             CoreRestDriver = require('Core/RestDriver'),
+            CryptoMd5 = require('cryptojs.md5'),
             AbstractDataStore = new JS.Class({
                 defaultConfig: {
                     idKey: 'uid'
@@ -46,7 +48,10 @@ define(
                     this.data = [];
                     this.notifyChange = true;
                     this.tasksQueue = [];
+                    this.RequestMap = {};
+                    this.lastRequestId = null;
                 },
+
 
                 addFilter: function (name, def) {
                     if (!name || typeof name !== "string") {
@@ -240,10 +245,35 @@ define(
                     this.notifyChange = true;
                     this.initRestHandler();
                     this.total = 0;
+                    this.lastRestRequestID = null;
+                    this.lastRequest = null;
                     this.createGenericFilter();
+                    this.handleAjaxEvent();
                     if (this.config.autoLoad) {
                         this.load();
                     }
+                },
+
+                handleAjaxEvent: function () {
+                    var self = this;
+                    jQuery(document).on("ajaxSend", function (e, jqXhr, options) {
+                        if (self.lastRestRequestID === CryptoMd5.MD5(options.url).toString()) {
+                            self.lastRequest = jqXhr;
+                        }
+                        return e;
+                    });
+                },
+
+                registerLastRestRequest: function (request) {
+                    this.lastRestRequestID = CryptoMd5.MD5(request.url).toString();
+                },
+
+                getLastRequest: function () {
+                    var request = null;
+                    if (this.lastRequest) {
+                        request = this.lastRequest;
+                    }
+                    return request;
                 },
 
                 createGenericFilter: function () {
@@ -278,6 +308,8 @@ define(
                             return true; //continue
                         }
                     });
+
+                    Core.Mediator.subscribeOnce("rest:send:before", this.registerLastRestRequest.bind(this));
                     CoreDriverHandler.read(this.config.resourceEndpoint, restParams.criterias, restParams.sorters, this.start, this.limit).done(function (data, response) {
                         self.total = response.getRangeTotal();
                         self.setData(data);

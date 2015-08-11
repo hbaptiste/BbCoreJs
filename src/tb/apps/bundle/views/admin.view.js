@@ -114,7 +114,14 @@ define(
                     postParams = {};
 
                 jQuery.each(params, function (key) {
-                    postParams[params[key].name] = params[key].value;
+                    if (params[key].name.match(/\[\]/)) {
+                        if (postParams[params[key].name] === undefined) {
+                            postParams[params[key].name] = [];
+                        }
+                        postParams[params[key].name].push(params[key].value);
+                    } else {
+                        postParams[params[key].name] = params[key].value;
+                    }
                 });
 
                 this.sendRequest(method, link, postParams);
