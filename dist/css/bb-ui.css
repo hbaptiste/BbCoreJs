@@ -10577,7 +10577,12 @@ fieldset[disabled] #bb5-ui .btn-online.active {
   position: fixed;
   bottom: 0;
 }
-/* END CONTENT */
+#bb5-ui .backbee-autocomplete {
+  border: 1px solid #D3D3D3;
+  background: "white";
+  position: "absolute";
+  width: "150px";
+}
 /* bb notify css start author http://tympanus.net/codrops/2012/06/25/timed-notifications-with-css-animations/ */
 #bb-box-wrapper {
   position: fixed;
@@ -10819,4 +10824,25 @@ fieldset[disabled] #bb5-ui .btn-online.active {
   position: static !important;
   top: auto;
   left: auto;
+}
+#bb5-ui .kw-wrapper.list-inline {
+  border: solid 1px #e0e0e0;
+  padding: 3px 3px 0 3px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+#bb5-ui .kw-wrapper.list-inline .btn-rm-kw {
+  margin-bottom: 3px;
+}
+#bb5-ui .kw-wrapper.list-inline .keyword-wrapper.list-inline {
+  margin-left: 0;
+}
+#bb5-ui .kw-wrapper.list-inline .keyword-wrapper.list-inline li {
+  padding: 0 2px;
+}
+#bb5-ui .kw-wrapper.list-inline input.kw-editor {
+  border-width: 0;
+  outline: 0;
 }
