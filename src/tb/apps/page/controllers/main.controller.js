@@ -82,7 +82,7 @@ define(
                                 if (data.hasOwnProperty(0)) {
                                     data = data[0];
                                 }
-
+                                Core.set("current.page", data);
                                 var view = new ContributionIndexView({'data': data});
                                 view.render();
 
@@ -103,8 +103,8 @@ define(
             treeService: function (req, config) {
                 var PageTreeViewContribution = req('page.view.tree.contribution'),
                     view = new PageTreeViewContribution(config);
-
                 view.render();
+                return view;
             },
 
             getPageTreeViewInstanceService: function (req) {
