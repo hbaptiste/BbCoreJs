@@ -270,6 +270,7 @@ define(
             selectPage: function (pageUid) {
                 var self = this;
                 this.mask();
+
                 PageRepository.findAncestors(pageUid).done(function (ancestorInfos) {
 
                     if (!Array.isArray(ancestorInfos) || ancestorInfos.length === 0) {
@@ -301,11 +302,10 @@ define(
 
             createNodeCallBack: function (node, parentNode, nextId, callbacksList, pageUid) {
                 var self = this,
-                    treeRoot = this.treeView.getRootNode(),
                     nextCallback;
 
                 return function () {
-                    if (treeRoot.children[0].id === node.uid) {
+                    if ((callbacksList.length === 1) && (self.treeView.isRoot({id: node.uid}))) {
                         self.handleLastNode(pageUid, node);
                         self.unmask();
                         return;
@@ -317,7 +317,7 @@ define(
                         if (typeof callbacksList[nextId + 1] === "function") {
                             nextCallback.call(this);
                         } else {
-                            self.handleCurrentNode(pageUid, node);
+                            self.handleLastNode(pageUid, node);
                             self.unmask();
                         }
                     });
@@ -325,7 +325,7 @@ define(
             },
 
             handleLastNode: function (pageUid, node) {
-            /* Handle finaly the current page */
+
                 var currentNode = this.treeView.getNodeById(pageUid);
                 if (currentNode) {
                     this.treeView.invoke('selectNode', currentNode);
@@ -334,15 +334,15 @@ define(
                     this.addEllipsisNode(currentNode, node);
                     this.treeView.invoke('selectNode', this.treeView.getNodeById(currentNode.id));
                 }
-                       //self.treeView.invoke('openNode', self.treeView.getNodeById(currentNode.id));
             },
 
             handleNewNode: function (node, parentNode, nodeChildren) {
                 /* case 1: The node is already in the tree: open it silently */
                 node = this.treeView.getNodeById(node.uid);
                 if (node) {
+                    /* as root is loaded by default add nothing to root */
+                    if (!parentNode) { return; }
                     this.insertDataInNode(nodeChildren, node);
-                    //this.treeView.invoke('openNode', node);
                 } else {
                     /* case 2: The node hasn't been loaded yet */
                     this.addEllipsisNode(node, parentNode);
@@ -364,7 +364,6 @@ define(
                 if (!elpsNode) {
                     return;
                 }
-                /* we've found an ellipsis node, we just have to remove it end its linked node */
                 this.treeView.invoke("removeNode", elpsNode);
                 if (!linkedNode) {
                     return;
@@ -376,11 +375,10 @@ define(
                 var ellipsis_before;
 
                 if (parentNode) {
-                    /* At this stage parentNode is in the tree */
                     parentNode = this.treeView.getNodeById(parentNode.uid);
                 }
 
-                parentNode = parentNode || this.treeView.getRoot();
+                parentNode = parentNode || this.treeView.getRootNode();
                 ellipsis_before = this.buildNode("...", {
                     is_fake: true,
                     is_ellipsis: true,
