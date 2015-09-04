@@ -273,6 +273,7 @@ define(
                 PageRepository.findAncestors(pageUid).done(function (ancestorInfos) {
 
                     if (!Array.isArray(ancestorInfos) || ancestorInfos.length === 0) {
+                        self.unmask();
                         return false;
                     }
                     var callbacks = [],
@@ -300,11 +301,15 @@ define(
 
             createNodeCallBack: function (node, parentNode, nextId, callbacksList, pageUid) {
                 var self = this,
-                    currentNode,
+                    treeRoot = this.treeView.getRootNode(),
                     nextCallback;
 
                 return function () {
-
+                    if (treeRoot.children[0].id === node.uid) {
+                        self.handleLastNode(pageUid, node);
+                        self.unmask();
+                        return;
+                    }
                     self.findPages(node, 0).done(function (response) {
                         self.handleNewNode(node, parentNode, response);
 
@@ -312,30 +317,32 @@ define(
                         if (typeof callbacksList[nextId + 1] === "function") {
                             nextCallback.call(this);
                         } else {
-                            /* Handle finaly the current page */
-                            currentNode = self.treeView.getNodeById(pageUid);
-                            if (currentNode) {
-                                self.treeView.invoke('selectNode', currentNode);
-                            } else {
-                                currentNode = self.formatePageToNode(Core.get("current.page"));
-                                self.addEllipsisNode(currentNode, node);
-                                self.treeView.invoke('selectNode', self.treeView.getNodeById(currentNode.id));
-                            }
-
+                            self.handleCurrentNode(pageUid, node);
                             self.unmask();
                         }
                     });
                 };
             },
 
+            handleLastNode: function (pageUid, node) {
+            /* Handle finaly the current page */
+                var currentNode = this.treeView.getNodeById(pageUid);
+                if (currentNode) {
+                    this.treeView.invoke('selectNode', currentNode);
+                } else {
+                    currentNode = this.formatePageToNode(Core.get("current.page"));
+                    this.addEllipsisNode(currentNode, node);
+                    this.treeView.invoke('selectNode', this.treeView.getNodeById(currentNode.id));
+                }
+                       //self.treeView.invoke('openNode', self.treeView.getNodeById(currentNode.id));
+            },
 
             handleNewNode: function (node, parentNode, nodeChildren) {
                 /* case 1: The node is already in the tree: open it silently */
                 node = this.treeView.getNodeById(node.uid);
-
                 if (node) {
                     this.insertDataInNode(nodeChildren, node);
-                    this.treeView.invoke('openNode', node);
+                    //this.treeView.invoke('openNode', node);
                 } else {
                     /* case 2: The node hasn't been loaded yet */
                     this.addEllipsisNode(node, parentNode);
