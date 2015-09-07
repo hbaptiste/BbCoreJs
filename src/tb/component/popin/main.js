@@ -246,7 +246,7 @@ define('tb.component/popin/main', ['Core', 'tb.component/popin/PopIn', 'jquery',
                     });
 
                     jQuery('#' + popIn.getId()).dialog('open');
-                /* deal with zIndex */
+                
                 }
             }
         },
