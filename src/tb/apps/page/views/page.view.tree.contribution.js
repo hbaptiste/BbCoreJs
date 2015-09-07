@@ -45,9 +45,13 @@ define(
              * Initialize of PageViewTreeContribution
              */
             initialize: function (config) {
+                jQuery.extend(this, {}, Backbone.Events);
                 this.view = new TreeView(config);
                 this.treeView = this.view.treeView;
-
+                this.autoLoadRoot = false;
+                if (config.hasOwnProperty("autoLoadRoot") && config.autoLoadRoot === true) {
+                    this.autoLoadRoot = true;
+                }
                 this.bindEvents();
             },
 
@@ -144,6 +148,9 @@ define(
                 PageRepository.moveNode(page_uid, data);
             },
 
+            selectPage: function (page_uid) {
+                this.view.selectPage(page_uid);
+            },
             /**
              * Build config for context menu
              * @returns {Object}
@@ -338,13 +345,23 @@ define(
                 return request;
             },
 
+            loadTreeRoot: function () {
+                var root = this.treeView.invoke("getTree");
+                if (root && root.children.length !== 0) {
+                    this.treeView.invoke("openNode", root.children[0]);
+                }
+            },
             /**
              * Render the template into the DOM with the ViewManager
              * @returns {Object} PageViewClone
              */
             render: function () {
+                var self = this;
                 this.view.getTree().done(function (tree) {
                     tree.display();
+                    if (self.autoLoadRoot) {
+                        self.loadTreeRoot(tree);
+                    }
                 });
 
                 return this;

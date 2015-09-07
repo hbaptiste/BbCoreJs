@@ -101,6 +101,7 @@ define(
                     config.bindEvents = true;
 
                     view = new IndexView(config, currentKey);
+                    view.doListDialog();
                     view.render();
                 }
             },

@@ -21,43 +21,47 @@ define(
         'Core',
         'jquery',
         'page.repository',
-        'component!treeview'
+        'component!treeview',
+        'component!mask'
     ],
-    function (Core, jQuery, PageRepository, Tree) {
+
+    function (Core, jQuery, PageRepository, Tree, Mask) {
+
+
 
         'use strict';
 
         /**
-         * View of new page
-         * @type {Object} Backbone.View
-         */
+        * View of new page
+        * @type {Object} Backbone.View
+        */
         var PageViewTree = Backbone.View.extend({
 
             limit_of_page: 10,
 
             /**
-             * Initialize of PageViewClone
-             */
+            * Initialize of PageViewClone
+            */
             initialize: function (config) {
                 this.config = config;
                 if (typeof this.config.site_uid !== 'string') {
                     Core.exception('MissingPropertyException', 500, 'Property "site_uid" must be set to constructor');
                 }
-
+                this.maskMng = Mask.createMask({});
                 this.site_uid = this.config.site_uid;
 
                 this.initializeTree();
             },
 
             /**
-             * Initialize tree
-             */
+            * Initialize tree
+            */
             initializeTree: function () {
                 var config = {
-                        dragAndDrop: true,
-                        onCreateLi: this.onCreateLi,
-                        id: this.config.popinId || 'bb-page-tree'
-                    };
+                    dragAndDrop: true,
+                    onCreateLi: this.onCreateLi,
+                    id: this.config.popinId || 'bb-page-tree'
+                };
 
                 this.formatedData = [];
 
@@ -73,10 +77,10 @@ define(
             },
 
             /**
-             * Event trigged when LI is created
-             * @param {Object} node
-             * @param {Object} li
-             */
+            * Event trigged when LI is created
+            * @param {Object} node
+            * @param {Object} li
+            */
             onCreateLi: function (node, li) {
 
                 var title = li.find('.jqtree-title');
@@ -93,21 +97,25 @@ define(
             },
 
             /**
-             * Bind default events of tree
-             */
+            * Bind default events of tree
+            */
             bindDefaultEvents: function () {
                 this.treeView.on('tree.click', jQuery.proxy(this.onClick, this));
                 this.treeView.on('tree.open', jQuery.proxy(this.onOpen, this));
             },
 
             /**
-             * Event trigged on click in tree
-             * @param {Object} event
-             */
+            * Event trigged on click in tree
+            * @param {Object} event
+            */
             onClick: function (event) {
 
                 var self = this,
                     parent = event.node.parent;
+                /* do nothing with ellipsis node */
+                if (event.node.is_ellipsis) {
+                    return;
+                }
 
                 if (event.node.is_fake === true && self.config.do_pagination === true) {
                     self.findPages(parent, parent.range_to + 1).done(function (data) {
@@ -118,12 +126,11 @@ define(
             },
 
             /**
-             * Event trigged on click in arrow in tree
-             * @param {Object} event
-             */
+            * Event trigged on click in arrow in tree
+            * @param {Object} event
+            */
             onOpen: function (event) {
                 var self = this;
-
                 if (event.node.is_fake === true) {
                     return;
                 }
@@ -131,17 +138,20 @@ define(
                 if (event.node.before_load === true) {
                     self.findPages(event.node, 0).done(function (data) {
                         self.insertDataInNode(data, event.node);
+                        if (self.treeView.isRoot(event.node)) {
+                            self.trigger("rootIsLoaded");
+                        }
                     });
                 }
             },
 
             /**
-             * Find pages with page repository and add limit in current node
-             * @param {String} parent_uid
-             * @param {Object} event
-             * @param {Number} start
-             * @param {Number} limit
-             */
+            * Find pages with page repository and add limit in current node
+            * @param {String} parent_uid
+            * @param {Object} event
+            * @param {Number} start
+            * @param {Number} limit
+            */
             findPages: function (node, start) {
                 var dfd = jQuery.Deferred(),
                     self = this;
@@ -159,10 +169,10 @@ define(
             },
 
             /**
-             * Update limit of node for create pagination
-             * @param {Object} event
-             * @param {Object} response
-             */
+            * Update limit of node for create pagination
+            * @param {Object} event
+            * @param {Object} response
+            */
             updateLimit: function (node, response) {
                 if (node !== undefined) {
                     node.range_total = response.getRangeTotal();
@@ -172,10 +182,10 @@ define(
             },
 
             /**
-             * Formate Page object to Node object
-             * @param {Object} page
-             * @returns {Object}
-             */
+            * Formate Page object to Node object
+            * @param {Object} page
+            * @returns {Object}
+            */
             formatePageToNode: function (page) {
                 page.children = [];
 
@@ -189,7 +199,9 @@ define(
                 if (page.has_children) {
                     if (this.config.do_loading === true) {
                         page.before_load = true;
-                        page.children.push(this.buildNode('Loading...', {'is_fake': true}));
+                        page.children.push(this.buildNode('Loading...', {
+                            'is_fake': true
+                        }));
                     }
                 }
 
@@ -197,11 +209,11 @@ define(
             },
 
             /**
-             * Build a simple node
-             * @param {String} label
-             * @param {Object} properties
-             * @returns {Object}
-             */
+            * Build a simple node
+            * @param {String} label
+            * @param {Object} properties
+            * @returns {Object}
+            */
             buildNode: function (label, properties) {
                 var node = {};
 
@@ -225,13 +237,12 @@ define(
             },
 
             /**
-             * Insert data in node, remove loader and add pagination if necessary
-             * @param {Object} data
-             * @param {Object} node
-             */
+            * Insert data in node, remove loader and add pagination if necessary
+            * @param {Object} data
+            * @param {Object} node
+            */
             insertDataInNode: function (data, node) {
-                var key,
-                    children = node.children;
+                var key, formattedNode, children = node.children;
 
                 if (node.before_load) {
                     if (node.children.hasOwnProperty(0) && node.children[0].is_fake === true) {
@@ -242,15 +253,141 @@ define(
 
                 for (key in data) {
                     if (data.hasOwnProperty(key)) {
-                        this.treeView.invoke('appendNode', this.formatePageToNode(data[key]), node);
+                        formattedNode = this.formatePageToNode(data[key]);
+                        this.removeEllipsisNode(formattedNode);
+                        this.treeView.invoke('appendNode', formattedNode, node);
                     }
                 }
 
-                if (node.range_total > children.length  && this.config.do_pagination === true) {
-                    this.treeView.invoke('appendNode', this.buildNode('next results...', {'is_fake': true}), node);
+                if (node.range_total > children.length && this.config.do_pagination === true) {
+                    this.treeView.invoke('appendNode', this.buildNode('next results...', {
+                        'is_fake': true
+                    }), node);
                 }
             },
 
+
+            selectPage: function (pageUid) {
+                var self = this;
+                this.mask();
+
+                PageRepository.findAncestors(pageUid).done(function (ancestorInfos) {
+
+                    if (!Array.isArray(ancestorInfos) || ancestorInfos.length === 0) {
+                        self.unmask();
+                        return false;
+                    }
+                    var callbacks = [],
+                        nodeCallBack,
+                        parentNode,
+                        index,
+                        ancestor;
+
+                    jQuery.each(ancestorInfos, function (i) {
+                        ancestor = self.formatePageToNode(ancestorInfos[i]);
+                        index = i - 1;
+                        parentNode = (i === 0) ? null : ancestorInfos[index];
+                        nodeCallBack = self.createNodeCallBack(ancestor, parentNode, i, callbacks, pageUid);
+                        callbacks.push(nodeCallBack);
+                    });
+
+                    if (callbacks.length === 0) {
+                        return false;
+                    }
+
+                    callbacks[0].call(this);
+                });
+
+            },
+
+            createNodeCallBack: function (node, parentNode, nextId, callbacksList, pageUid) {
+                var self = this,
+                    nextCallback;
+
+                return function () {
+                    if ((callbacksList.length === 1) && (self.treeView.isRoot({id: node.uid}))) {
+                        self.handleLastNode(pageUid, node);
+                        self.unmask();
+                        return;
+                    }
+                    self.findPages(node, 0).done(function (response) {
+                        self.handleNewNode(node, parentNode, response);
+
+                        nextCallback = callbacksList[nextId + 1];
+                        if (typeof callbacksList[nextId + 1] === "function") {
+                            nextCallback.call(this);
+                        } else {
+                            self.handleLastNode(pageUid, node);
+                            self.unmask();
+                        }
+                    });
+                };
+            },
+
+            handleLastNode: function (pageUid, node) {
+
+                var currentNode = this.treeView.getNodeById(pageUid);
+                if (currentNode) {
+                    this.treeView.invoke('selectNode', currentNode);
+                } else {
+                    currentNode = this.formatePageToNode(Core.get("current.page"));
+                    this.addEllipsisNode(currentNode, node);
+                    this.treeView.invoke('selectNode', this.treeView.getNodeById(currentNode.id));
+                }
+            },
+
+            handleNewNode: function (node, parentNode, nodeChildren) {
+                /* case 1: The node is already in the tree: open it silently */
+                node = this.treeView.getNodeById(node.uid);
+                if (node) {
+                    /* as root is loaded by default add nothing to root */
+                    if (!parentNode) { return; }
+                    this.insertDataInNode(nodeChildren, node);
+                } else {
+                    /* case 2: The node hasn't been loaded yet */
+                    this.addEllipsisNode(node, parentNode);
+                }
+            },
+
+            mask: function () {
+                this.maskMng.mask(this.treeView.el);
+            },
+
+            unmask: function () {
+                this.maskMng.unmask(this.treeView.el);
+            },
+
+            removeEllipsisNode: function (node) {
+                var elpsNode = this.treeView.getNodeById("elps_" + node.uid),
+                    linkedNode = this.treeView.getNodeById(node.uid);
+
+                if (!elpsNode) {
+                    return;
+                }
+                this.treeView.invoke("removeNode", elpsNode);
+                if (!linkedNode) {
+                    return;
+                }
+                this.treeView.invoke("removeNode", linkedNode);
+            },
+
+            addEllipsisNode: function (node, parentNode) {
+                var ellipsis_before;
+
+                if (parentNode) {
+                    parentNode = this.treeView.getNodeById(parentNode.uid);
+                }
+
+                parentNode = parentNode || this.treeView.getRootNode();
+                ellipsis_before = this.buildNode("...", {
+                    is_fake: true,
+                    is_ellipsis: true,
+                    link_to: node.uid
+                });
+                ellipsis_before.id = "elps_" + node.uid;
+                this.treeView.invoke("appendNode", ellipsis_before, parentNode);
+                this.treeView.invoke("appendNode", node, parentNode);
+            },
 
             getTree: function () {
                 var self = this,

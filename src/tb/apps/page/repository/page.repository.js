@@ -77,6 +77,18 @@ define(
                     return CoreDriverHandler.read(this.TYPE, {'uid': Core.get('page.uid')});
                 },
 
+
+                findAncestors: function (page_uid) {
+
+                    Core.Mediator.subscribeOnce('rest:send:before', function (request) {
+                        var url = new URI(request.url);
+                        url.segment('ancestors');
+                        request.url = url.normalize().toString();
+                    });
+
+                    return CoreDriverHandler.read(this.TYPE, {'uid': page_uid});
+                },
+
                 setMetadata: function (page_uid, data) {
                     Core.Mediator.subscribeOnce('rest:send:before', function (request) {
                         var url = new URI(request.url);
@@ -197,7 +209,7 @@ define(
                  * @param {String} uid
                  * @returns {Promise}
                  */
-                delete: function (uid) {
+                "delete": function (uid) {
                     return CoreDriverHandler["delete"](this.TYPE, {'id': uid}, {}, 0, null);
                 },
 

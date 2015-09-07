@@ -47,6 +47,7 @@ define(
                 }
 
                 this.config = config;
+                this.chosenLayout = null;
 
                 this.page_uid = this.config.page_uid;
                 this.callbackAfterSubmit = this.config.callbackAfterSubmit;
@@ -89,6 +90,20 @@ define(
                 }
             },
 
+            handleLayoutChange: function (formRender) {
+                var self = this,
+                    layoutField = jQuery(formRender).find(".element_layout_uid").eq(0),
+                    previousLayout = layoutField.find("select").eq(0).val();
+                layoutField.on("change", "select", (function (currentLayout) {
+                    return function () {
+                        self.chosenLayout = (currentLayout !== jQuery(this).val()) ? jQuery(this).val() : null;
+                    };
+                }(previousLayout)));
+            },
+
+            layoutHasChanged: function () {
+                return this.chosenLayout ? true : false;
+            },
             /**
              * Render the template into the DOM with the ViewManager
              * @returns {Object} PageViewEdit
@@ -107,6 +122,7 @@ define(
                     configForm.onValidate = self.onValidate;
 
                     self.formBuilder.renderForm(configForm).done(function (html) {
+                        Core.Mediator.subscribeOnce("on:form:render", self.handleLayoutChange.bind(self));
                         self.popin.setContent(html);
                         self.popin.unmask();
                     });

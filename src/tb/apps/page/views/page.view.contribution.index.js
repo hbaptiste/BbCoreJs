@@ -111,7 +111,14 @@ define(
              * Edit the page
              */
             manageEdit: function () {
-                ApplicationManager.invokeService('page.main.editPage', {'page_uid': Core.get('page.uid')});
+                /* */
+                ApplicationManager.invokeService('page.main.editPage', {callbackAfterSubmit : this.afterSubmitHandler, 'page_uid': Core.get('page.uid')});
+            },
+
+            afterSubmitHandler: function () {
+                if (this.layoutHasChanged()) {
+                    location.reload();
+                }
             },
 
             /**
