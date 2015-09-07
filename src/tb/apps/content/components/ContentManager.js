@@ -52,7 +52,7 @@ define(
             idDataAttribute: 'bb-id',
             droppableClass: '.bb-droppable',
             imageClass: 'Element/Image',
-            defaultPicturePath: '/resources/toolbar/html/img/filedrop.png',
+            defaultPicturePath: require.toUrl('html/img/filedrop.png'),
             contentSelectedClass: 'bb-content-selected',
 
 

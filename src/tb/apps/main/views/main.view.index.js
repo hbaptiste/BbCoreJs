@@ -52,7 +52,8 @@ define(['jquery', 'Core/Renderer', 'text!main/tpl/toolbar', 'component!translato
                         url: '#/bundle/index',
                         active: false
                     }
-                ]
+                ],
+                logo: require.toUrl('html/img/backbee.png')
             };
 
         },

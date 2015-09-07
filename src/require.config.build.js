@@ -23,9 +23,9 @@ require.onResourceLoad = function (context, map) {
         require.undef(map.name);
     }
 };
-
+var baseURI = document.getElementById('bb5-ui').getAttribute('data-base-url') + "resources/toolbar/";
 require.config({
-    baseUrl: '/resources/toolbar/',
+    baseUrl: baseURI,
     catchError: true,
     waitSeconds: 15,
     paths: {
