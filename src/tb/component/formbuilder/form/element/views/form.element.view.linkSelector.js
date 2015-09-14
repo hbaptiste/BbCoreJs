@@ -47,6 +47,8 @@ define(
              * @param {Object} element
              */
             initialize: function (template, formTag, element) {
+                var maxEntry;
+
                 this.el = formTag;
                 this.template = template;
                 this.element = element;
@@ -54,6 +56,15 @@ define(
                 this.elementSelector = 'form#' + this.el + ' .element_' + this.element.getKey();
                 this.bindEvents();
                 this.currentEditItem = null;
+
+                maxEntry = parseInt(this.element.config.max_entry, 10);
+                if (!isNaN(maxEntry)) {
+                    if (maxEntry <= 0) {
+                        maxEntry = null;
+                    }
+                }
+
+                this.maxEntry = maxEntry;
             },
 
             bindEvents: function () {
@@ -95,6 +106,10 @@ define(
                             element.val('');
                         }
                     }
+                });
+
+                Core.Mediator.subscribe('on:form:render', function () {
+                    self.updateAddButton();
                 });
             },
 
@@ -152,11 +167,23 @@ define(
 
             onTrash: function (event) {
                 jQuery(event.currentTarget).parent().remove();
+                this.updateAddButton();
             },
 
             onClick: function () {
                 this.currentEditItem = null;
                 this.linkSelector.show();
+            },
+
+            updateAddButton: function () {
+                var currentLinks = this.getCurrentLinks(),
+                    btn = jQuery(this.elementSelector + ' .' + this.linkSelectorClass);
+
+                if (null !== this.maxEntry && this.maxEntry <= currentLinks.length) {
+                    btn.addClass('hidden');
+                } else {
+                    btn.removeClass('hidden');
+                }
             },
 
             handleLinkSelection: function (data) {
@@ -175,6 +202,8 @@ define(
                     item = Renderer.render(itemTemplate, {'data': data});
 
                 elementsWrapper.append(item);
+
+                this.updateAddButton();
 
                 this.updateMoveBtn();
             },

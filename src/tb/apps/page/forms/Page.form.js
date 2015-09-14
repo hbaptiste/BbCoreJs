@@ -23,6 +23,9 @@ define(['page.abstract.form', 'jquery', 'jsclass'], function (Form, jQuery) {
     var PageForm = new JS.Class(Form, {
 
         new: function () {
+
+            this.clear();
+
             var dfd = jQuery.Deferred(),
                 config = {
                     elements: {

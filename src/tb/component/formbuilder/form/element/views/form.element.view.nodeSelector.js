@@ -17,130 +17,275 @@
  * along with BackBee. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['Core', 'Core/Renderer', 'BackBone', 'jquery'], function (Core, Renderer, Backbone, jQuery) {
-    'use strict';
+define(
+    [
+        'Core',
+        'Core/Renderer',
+        'jquery',
+        'text!tb.component/formbuilder/form/element/templates/nodeSelector_item.twig'
+    ],
+    function (Core, Renderer, jQuery, itemTemplate) {
+        'use strict';
 
-    var NodeSelector = Backbone.View.extend({
+        var nodeSelector = Backbone.View.extend({
 
-        nodeSelectorBtnClass: 'node-selector-btn',
-        mainSelector: Core.get('wrapper_toolbar_selector'),
+            mainSelector: Core.get('wrapper_toolbar_selector'),
+            nodeSelectorClass: 'add_node',
+            trashClass: 'trash',
+            elementsWrapperClass: 'node_elements_wrapper',
+            editClass: 'node-selector-edit',
+            moveClass: 'move',
+            moveDownClass: 'move-down',
+            moveUpClass: 'move-up',
+            listClass: 'nodeselector_list',
 
-        /**
-         * Initialize of node selector
-         * @param {String} template
-         * @param {String} formTag
-         * @param {Object} element
-         */
-        initialize: function (template, formTag, element) {
-            this.el = formTag;
-            this.template = template;
-            this.element = element;
+            /**
+             * Initialize of node selector
+             * @param {String} template
+             * @param {String} formTag
+             * @param {Object} element
+             */
+            initialize: function (template, formTag, element) {
+                var maxEntry;
 
-            this.elementSelector = 'form#' + this.el + ' .element_' + this.element.getKey();
+                this.el = formTag;
+                this.template = template;
+                this.element = element;
+                this.elementSelector = 'form#' + this.el + ' .element_' + this.element.getKey();
+                this.bindEvents();
+                this.currentEditItem = null;
 
-            this.bindEvents();
-        },
-
-        /**
-         * Bind events
-         */
-        bindEvents: function () {
-            var self = this;
-
-            jQuery(this.mainSelector).on('click', 'form#' + this.el + ' .' + this.nodeSelectorBtnClass, jQuery.proxy(this.onClick, this));
-
-            Core.Mediator.subscribe('before:form:submit', function (form) {
-                if (form.attr('id') === self.el) {
-                    var node = self.getCurrentNode(),
-                        oldNode = self.element.value,
-                        element = jQuery(form).find('input[name="' + self.element.getKey() + '"]');
-
-                    if (node.pageUid !== oldNode.pageUid) {
-                        element.val('updated');
-                    } else {
-                        element.val('');
+                maxEntry = parseInt(this.element.config.max_entry, 10);
+                if (!isNaN(maxEntry)) {
+                    if (maxEntry <= 0) {
+                        maxEntry = null;
                     }
                 }
-            });
-        },
 
-        getCurrentNode: function () {
-            var element = jQuery(this.elementSelector),
-                inputPageUid = element.find('input.pageuid'),
-                inputTitle = element.find('input.title');
+                this.maxEntry = maxEntry;
+            },
 
-            return {'pageUid': inputPageUid.val(), 'title': inputTitle.val()};
-        },
+            bindEvents: function () {
+                var self = this;
 
-        /**
-         * On click event
-         * Show the page tree
-         */
-        onClick: function () {
-            var self = this,
-                config = {
-                    do_loading: true,
-                    do_pagination: true,
-                    site_uid: Core.get('site.uid'),
-                    popin: true,
-                    popinId: 'popin_' + self.el
-                };
+                jQuery(this.mainSelector).on('click', this.elementSelector + ' .' + this.nodeSelectorClass, jQuery.proxy(this.onClick, this));
+                jQuery(this.mainSelector).on('click', this.elementSelector + ' .' + this.trashClass, jQuery.proxy(this.onTrash, this));
+                jQuery(this.mainSelector).on('click', this.elementSelector + ' .' + this.editClass, jQuery.proxy(this.onEditClick, this));
+                jQuery(this.mainSelector).on('click', this.elementSelector + ' .' + this.moveClass, jQuery.proxy(this.onMove, this));
 
-            if (self.pageTreeView === undefined) {
-                Core.ApplicationManager.invokeService('page.main.getPageTreeViewInstance').done(function (TreeView) {
-                    self.pageTreeView = new TreeView(config);
+                //HAndle click page tree
 
-                    self.pageTreeView.getTree().done(function (tree) {
-                        self.pageTree = tree;
-                        self.pageTree.display();
+                Core.Mediator.subscribe('before:form:submit', function (form) {
+                    if (form.attr('id') === self.el) {
+                        var nodes = self.getCurrentNodes(),
+                            oldNodes = self.element.value,
+                            element = jQuery(form).find('input[name="' + self.element.getKey() + '"]'),
+                            i,
+                            updated = false;
 
-                        self.bindTreeEvents();
-                    });
+                        if (nodes.length !== oldNodes.length) {
+                            updated = true;
+                        } else {
+                            for (i = 0; i < oldNodes.length; i = i + 1) {
+                                if (oldNodes[i].pageUid !== nodes[i].pageUid) {
+                                    updated = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (updated === true) {
+                            element.val('updated');
+                        } else {
+                            element.val('');
+                        }
+                    }
                 });
-            } else {
-                self.pageTree.display();
+
+                Core.Mediator.subscribe('on:form:render', function () {
+                    self.updateAddButton();
+                });
+            },
+
+            onEditClick: function (event) {
+                this.currentEditItem = jQuery(event.currentTarget).parents('li:first');
+                this.showTree();
+            },
+
+            onMove: function (event) {
+                var target = jQuery(event.currentTarget),
+                    li = target.parents('li:first'),
+                    prev = li.prev('li'),
+                    next = li.next('li');
+
+                if (target.hasClass(this.moveUpClass)) {
+                    if (prev.length > 0) {
+                        prev.before(li);
+                    }
+                } else if (target.hasClass(this.moveDownClass)) {
+                    if (next.length > 0) {
+                        next.after(li);
+                    }
+                }
+
+                this.updateMoveBtn();
+            },
+
+            updateMoveBtn: function () {
+                var self = this,
+                    list = jQuery(this.elementSelector + ' .' + this.listClass),
+                    children = list.children('li'),
+                    count = children.length;
+
+                list.children('li').each(function (index) {
+
+                    var element = jQuery(this),
+                        moveDownBtn = element.find('.' + self.moveDownClass),
+                        moveUpBtn = element.find('.' + self.moveUpClass);
+
+                    moveDownBtn.addClass('hidden');
+                    moveUpBtn.addClass('hidden');
+
+                    if (count > 1) {
+                        if (index === 0) {
+                            moveDownBtn.removeClass('hidden');
+                        } else if (index === count - 1) {
+                            moveUpBtn.removeClass('hidden');
+                        } else {
+                            moveDownBtn.removeClass('hidden');
+                            moveUpBtn.removeClass('hidden');
+                        }
+                    }
+                });
+            },
+
+            updateAddButton: function () {
+                var currentNodes = this.getCurrentNodes(),
+                    btn = jQuery(this.elementSelector + ' .' + this.nodeSelectorClass);
+
+                if (null !== this.maxEntry && this.maxEntry <= currentNodes.length) {
+                    btn.addClass('hidden');
+                } else {
+                    btn.removeClass('hidden');
+                }
+            },
+
+            onTrash: function (event) {
+                jQuery(event.currentTarget).parent().remove();
+                this.updateAddButton();
+            },
+
+            onClick: function () {
+                this.currentEditItem = null;
+                this.showTree();
+            },
+
+            showTree: function () {
+                var self = this,
+                    config = {
+                        do_loading: true,
+                        do_pagination: true,
+                        site_uid: Core.get('site.uid'),
+                        popin: true,
+                        popinId: 'popin_' + self.el
+                    };
+
+                if (self.pageTreeView === undefined) {
+                    Core.ApplicationManager.invokeService('page.main.getPageTreeViewInstance').done(function (TreeView) {
+                        self.pageTreeView = new TreeView(config);
+
+                        self.pageTreeView.getTree().done(function (tree) {
+                            self.pageTree = tree;
+                            self.pageTree.display();
+
+                            self.bindTreeEvents();
+                        });
+                    });
+                } else {
+                    self.pageTree.display();
+                }
+
+                return false;
+            },
+
+            /**
+             * Bind tree events
+             */
+            bindTreeEvents: function () {
+                this.pageTreeView.treeView.on('tree.dblclick', jQuery.proxy(this.handleNodeSelection, this));
+            },
+
+            handleNodeSelection: function (event) {
+
+                if (event.node.is_fake === true) {
+                    return;
+                }
+
+                var elementsWrapper = jQuery(this.elementSelector).find(' .' + this.elementsWrapperClass + ' ul'),
+                    data = {'pageUid': event.node.id, 'title': event.node.name},
+                    item;
+
+                if (this.currentEditItem !== null) {
+
+                    this.currentEditItem.find('input.pageuid').val(data.pageUid);
+                    this.currentEditItem.find('input.title').val(data.title);
+
+                    this.currentEditItem = null;
+
+                    this.pageTree.hide();
+
+                    return;
+                }
+
+                item = Renderer.render(itemTemplate, {'data': data});
+
+                elementsWrapper.append(item);
+
+                this.pageTree.hide();
+
+                this.updateAddButton();
+
+                this.updateMoveBtn();
+
+                return false;
+            },
+
+            getCurrentNodes: function () {
+                var elementsWrapper = jQuery(this.elementSelector).find(' .' + this.elementsWrapperClass + ' ul'),
+                    nodes = [];
+
+                elementsWrapper.children('li').each(function () {
+                    var li = jQuery(this),
+                        node = {
+                            'title': li.find('input.title').val(),
+                            'pageUid': li.find('input.pageuid').val()
+                        };
+
+                    nodes.push(node);
+                });
+
+                return nodes;
+            },
+
+            /**
+             * Bind events and render template
+             * @returns {String}
+             */
+            render: function () {
+                var key,
+                    items = [],
+                    nodes = this.element.value;
+
+                for (key in nodes) {
+                    if (nodes.hasOwnProperty(key)) {
+                        items.push(Renderer.render(itemTemplate, {'data': nodes[key]}));
+                    }
+                }
+
+                return Renderer.render(this.template, {'element': this.element, 'items': items});
             }
+        });
 
-            return false;
-        },
-
-        /**
-         * Bind tree events
-         */
-        bindTreeEvents: function () {
-            this.pageTreeView.treeView.on('tree.dblclick', jQuery.proxy(this.onTreeDoubleClick, this));
-        },
-
-        /**
-         * On double click event
-         * Put uid of page into hidden input
-         * @param {Object} event
-         */
-        onTreeDoubleClick: function (event) {
-            if (event.node.is_fake === true) {
-                return;
-            }
-
-            var element = jQuery(this.elementSelector),
-                inputPageUid = element.find('input.pageuid'),
-                inputTitle = element.find('input.title');
-
-            inputPageUid.val(event.node.id);
-            inputTitle.val(event.node.name);
-
-            this.pageTree.hide();
-
-            return false;
-        },
-
-        /**
-         * Bind events and render template
-         * @returns {String}
-         */
-        render: function () {
-            return Renderer.render(this.template, {element: this.element, item: this.element.value});
-        }
-    });
-
-    return NodeSelector;
-});
+        return nodeSelector;
+    }
+);

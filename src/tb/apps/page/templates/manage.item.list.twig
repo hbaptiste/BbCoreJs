@@ -1,0 +1,27 @@
+{% set col1 = 'col-bb5-43' %}
+{% set col2 = 'col-bb5-14' %}
+{% set col3 = 'col-bb5-14' %}
+{% set col4 = 'col-bb5-14' %}
+{% set col5 = 'col-bb5-6' %}
+{% set col6 = 'col-bb5-6' %}
+{% set col7 = 'col-bb5-3' %}
+<li class="bb5-list-data-item">
+  <p class="{{ col7 }}">
+    <input data-identifier="{{ page.uid }}" class="bb-page-manage-select-page" type="checkbox">
+  </p>
+  <p class="{{ col1 }}">
+    <label>{{ page.title }}</label>
+  </p>
+  <p class="{{ col2 }}">
+    {{ page.state }}
+  </p>
+  <p class="{{ col3 }}">
+    {{ page.layout_label }}
+  </p>
+  <p class="{{ col4 }}">
+    {{ page.modified }}
+  </p>
+  <p class="{{ col6 }}">
+    <button type="button" class="btn btn-delete btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
+  </p>
+</li>

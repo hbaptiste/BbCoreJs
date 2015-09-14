@@ -35,6 +35,8 @@ define(
             mainSelector: Core.get('wrapper_toolbar_selector'),
 
             initialize: function (template, formTag, element) {
+                var maxEntry;
+
                 this.el = formTag;
                 this.template = template;
                 this.element = element;
@@ -47,6 +49,15 @@ define(
                 this.moveDownClass = 'move-down';
                 this.moveUpClass = 'move-up';
                 this.elementSelector = 'form#' + this.el + ' .element_' + this.element.getKey();
+
+                maxEntry = parseInt(this.element.config.max_entry, 10);
+                if (!isNaN(maxEntry)) {
+                    if (maxEntry <= 0) {
+                        maxEntry = null;
+                    }
+                }
+
+                this.maxEntry = maxEntry;
 
                 this.bindEvents();
             },
@@ -86,6 +97,10 @@ define(
                             element.val('');
                         }
                     }
+                });
+
+                Core.Mediator.subscribe('on:form:render', function () {
+                    self.updateAddButton();
                 });
             },
 
@@ -130,8 +145,20 @@ define(
                 });
             },
 
+            updateAddButton: function () {
+                var currentMedias = this.getCurrentContents(),
+                    btn = jQuery(this.elementSelector + ' .' + this.addMediaClass);
+
+                if (null !== this.maxEntry && this.maxEntry <= currentMedias.length) {
+                    btn.addClass('hidden');
+                } else {
+                    btn.removeClass('hidden');
+                }
+            },
+
             onDeleteAll: function () {
                 jQuery(this.elementSelector + ' .' + this.listClass).children('li').remove();
+                this.updateAddButton();
             },
 
             onDelete: function (event) {
@@ -139,6 +166,8 @@ define(
                     li = target.parents('li:first');
 
                 li.remove();
+
+                this.updateAddButton();
 
                 this.updateMoveBtn();
             },
@@ -198,6 +227,8 @@ define(
                 media.media_id = media.id;
 
                 list.prepend(Renderer.render(itemTemplate, {'element': this.element, 'item': media}));
+
+                this.updateAddButton();
             },
 
             /**

@@ -21,18 +21,20 @@ define(
     [
         'Core',
         'page.view.contribution.index',
-        'page.view.manage',
         'Core/Request',
         'Core/RequestHandler',
-        'page.save.manager'
+        'page.save.manager',
+        'Core/Utils',
+        'page.store'
     ],
     function (
         Core,
         ContributionIndexView,
-        ManageView,
         Request,
         RequestHandler,
-        SaveManager
+        SaveManager,
+        Utils,
+        PageStore
     ) {
 
         'use strict';
@@ -52,7 +54,13 @@ define(
                     editPageService: ['page.view.edit'],
                     validateService: ['component!translator', 'component!revisionpageselector', 'component!notify'],
                     cancelService: ['component!translator', 'component!revisionpageselector', 'component!notify'],
-                    deletePageService: ['page.view.delete']
+                    deletePageService: ['page.view.delete'],
+                    popinManagementService: ['page.view.manage'],
+                    toolbarManagementService: ['page.view.toolbar'],
+                    setOnlineGroupedService: ['page.view.validation', 'component!translator', 'component!notify'],
+                    setOfflineGroupedService: ['page.view.validation', 'component!translator', 'component!notify'],
+                    removeGroupedService: ['page.view.validation', 'component!translator', 'component!notify'],
+                    changeParentGroupedService: ['component!translator', 'component!notify', 'page.view.tree.select.parent']
                 }
             },
 
@@ -60,7 +68,7 @@ define(
              * Initialize of Page Controller
              */
             onInit: function () {
-                this.mainApp =  Core.get('application.main');
+                this.mainApp = Core.get('application.main');
                 this.repository = require('page.repository');
             },
 
@@ -165,9 +173,34 @@ define(
              * Manage pages action
              */
             manageAction: function () {
-                var view = new ManageView();
+                Core.ApplicationManager.invokeService('page.main.popinManagement');
+                Core.ApplicationManager.invokeService('page.main.toolbarManagement');
+            },
+
+            popinManagementService: function (req) {
                 Core.Scope.register('page', 'management');
-                view.render();
+                if (!this.manageView) {
+                    var ManageView = req('page.view.manage');
+                    this.manageView = new ManageView({'pageStore': PageStore});
+                    this.manageView.render();
+                } else {
+                    this.manageView.popin.display();
+                }
+            },
+
+            toolbarManagementService: function (req) {
+                var ToolbarView = req('page.view.toolbar'),
+                    view = new ToolbarView({'pageStore': PageStore});
+
+                this.repository.findLayouts(Core.get('site.uid')).then(
+                    function (layouts) {
+                        Core.ApplicationManager.invokeService('main.main.toolbarManager').done(function (Service) {
+                            Service.append('bb-page-app', view.render(Utils.castAsArray(layouts)), true);
+                            view.bindEvents();
+                        });
+                    }
+                );
+
             },
 
             newPageRedirect: function (data, response) {
@@ -264,6 +297,108 @@ define(
 
             getPopinService: function (id) {
                 return this.getContentPopins()[id];
+            },
+
+            setOnlineGroupedService: function (req, data, pageStore) {
+                var translator = req('component!translator'),
+                    View = req('page.view.validation'),
+                    view = new View({text: 'grouped_online_text', popin: data.popin});
+
+                view.display().then(
+                    function () {
+                        this.repository.groupedPatch(data.uids, {state: 'online'}).then(
+                            function () {
+                                if (data.uids.length === 1) {
+                                    req('component!notify').success(translator.translate('page_set_online'));
+                                } else {
+                                    req('component!notify').success(translator.translate('pages_set_online'));
+                                }
+                                pageStore.execute();
+                            },
+                            function () {
+                                req('component!notify').error(translator.translate('internal_error'));
+                            }
+                        );
+                    }.bind(this),
+                    function () {
+                        view.destruct();
+                    }
+                );
+            },
+
+            setOfflineGroupedService: function (req, data, pageStore) {
+                var translator = req('component!translator'),
+                    View = req('page.view.validation'),
+                    view = new View({text: 'grouped_offline_text', popin: data.popin});
+
+                view.display().then(
+                    function () {
+                        this.repository.groupedPatch(data.uids, {state: 'offline'}).then(
+                            function () {
+                                if (data.uids.length === 1) {
+                                    req('component!notify').success(translator.translate('page_set_offline'));
+                                } else {
+                                    req('component!notify').success(translator.translate('pages_set_offline'));
+                                }
+                                pageStore.execute();
+                            },
+                            function () {
+                                req('component!notify').error(translator.translate('internal_error'));
+                            }
+                        );
+                    }.bind(this),
+                    function () {
+                        view.destruct();
+                    }
+                );
+            },
+
+            removeGroupedService: function (req, data, pageStore) {
+                var translator = req('component!translator'),
+                    View = req('page.view.validation'),
+                    view = new View({text: 'grouped_remove_text', popin: data.popin});
+
+                view.display().then(
+                    function () {
+                        this.repository.groupedPatch(data.uids, {state: 'delete'}).then(
+                            function () {
+                                if (data.uids.length === 1) {
+                                    req('component!notify').success(translator.translate('page_deleted'));
+                                } else {
+                                    req('component!notify').success(translator.translate('pages_are_deleted'));
+                                }
+                                pageStore.execute();
+                            },
+                            function () {
+                                req('component!notify').error(translator.translate('internal_error'));
+                            }
+                        );
+                    }.bind(this),
+                    function () {
+                        view.destruct();
+                    }
+                );
+            },
+
+            changeParentGroupedService: function (req, data) {
+                var translator = req('component!translator'),
+                    View = req('page.view.tree.select.parent'),
+                    tree = new View();
+
+                tree.render().then(
+                    function (parent_uid) {
+                        this.repository.groupedPatch(data.uids, {parent_uid: parent_uid}).then(
+                            function () {
+                                req('component!notify').success(translator.translate('pages_parent_updated'));
+                            },
+                            function () {
+                                req('component!notify').error(translator.translate('internal_error'));
+
+                            }
+                        );
+                    }
+                );
+
             }
         });
     }

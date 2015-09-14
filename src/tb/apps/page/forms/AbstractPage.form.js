@@ -80,6 +80,15 @@ define(
                 return dfd.promise();
             },
 
+            clear: function () {
+                this.form.title.value = '';
+                this.form.alttitle.value = '';
+                this.form.target.value = [];
+                this.form.url.value = [];
+                this.form.redirect.value = '';
+                this.form.state.value = '';
+            },
+
             computeLayouts: function (layouts) {
                 var key,
                     layout,

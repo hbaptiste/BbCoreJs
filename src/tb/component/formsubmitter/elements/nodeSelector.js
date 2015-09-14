@@ -30,16 +30,24 @@ define(
 
             services: {},
 
-            elementsWrapperClass: 'link_elements_wrapper',
+            elementsWrapperClass: 'node_elements_wrapper',
 
             compute: function (key, value, form) {
                 var element = jQuery('form#' + form.getId() + ' .element_' + key),
-                    inputPageUid = element.find('input.pageuid'),
-                    inputTitle = element.find('input.title'),
+                    elementsWrapper = element.find('.' + this.elementsWrapperClass),
                     data = null;
 
                 if (value === 'updated') {
-                    data = {'pageUid': inputPageUid.val(), 'title': inputTitle.val()};
+                    data = [];
+                    elementsWrapper.find('li').each(function () {
+                        var li = jQuery(this),
+                            object = {
+                                'title': li.find('input.title').val(),
+                                'pageUid': li.find('input.pageuid').val()
+                            };
+
+                        data.push(object);
+                    });
                 }
 
                 return data;

@@ -120,6 +120,7 @@ define(
                         params = jQuery.merge([], arguments);
                     params.shift();
                     orderTask.params = params;
+                    orderTask.paramsCount = params.length;
                     /* clear previous filter tasks */
                     this.tasksQueue = underscore.reject(this.tasksQueue, function (task) { return task.name === 'sorters:' + name; });
                     this.tasksQueue.push(orderTask);

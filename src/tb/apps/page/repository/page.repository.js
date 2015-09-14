@@ -130,49 +130,35 @@ define(
                  * Find pages with children
                  * @param {String} uid
                  */
-                findChildren: function (parent_uid, start, limit) {
-                    var criterias = {'state': [0, 1, 2, 3], 'parent_uid': parent_uid};
-
-                    if (start === undefined) {
-                        start = 0;
+                findChildren: function (parent_uid, start, limit, only_section) {
+                    var filters = {'state': [0, 1, 2, 3], 'parent_uid': parent_uid, 'level_offset': 1};
+                    if (only_section) {
+                        filters.has_children = '';
                     }
-
-                    if (limit === undefined) {
-                        limit = 25;
-                    }
-
-                    return CoreDriverHandler.read(this.TYPE, criterias, {'leftnode': 'asc'}, start, limit);
+                    return this.search(filters, start, limit, {'leftnode': 'asc'});
                 },
 
                 findContents: function (contentType, contentUid) {
-                    var criteria = {content_type: contentType, content_uid: contentUid};
-                    return CoreDriverHandler.read(this.TYPE, criteria);
+                    return CoreDriverHandler.read(this.TYPE, {content_type: contentType, content_uid: contentUid});
                 },
 
                 findRoot: function () {
-                    return CoreDriverHandler.read(this.TYPE);
+                    return CoreDriverHandler.read(this.TYPE, {'root': 1});
                 },
 
                 /**
                  * Search pages
-                 *
                  * @param array filters
-                 * @param int start
-                 * @param int count
+                 * @param {int} start
+                 * @param {int} count
                  * @param {Function} callback
                  */
-                search: function (filters, start, count, callback) {
-                    var qs = filters;
+                search: function (filters, start, count, orderBy) {
+                    start = start || 0;
+                    count = count || 25;
+                    orderBy = orderBy || {};
 
-                    if (start !== undefined && start !== null) {
-                        qs.start = start;
-                    }
-
-                    if (count !== undefined && count !== null) {
-                        qs.count = count;
-                    }
-
-                    return CoreDriverHandler.read(this.TYPE, qs, {}, 0, null, callback);
+                    return CoreDriverHandler.read(this.TYPE, filters, orderBy, start, count);
                 },
 
                 /**
@@ -261,6 +247,23 @@ define(
 
                 findLayouts: function (site_uid) {
                     return CoreDriverHandler.read('layout', {'site_uid': site_uid}, {}, 0, null);
+                },
+
+                groupedPatch: function (uids, data) {
+                    var i,
+                        key,
+                        values = [];
+                    for (i = 0; i < uids.length; i = i + 1) {
+                        values[i] = {};
+                        values[i].uid = uids[i];
+                        for (key in data) {
+                            if (data.hasOwnProperty(key)) {
+                                values[i][key] = data[key];
+                            }
+                        }
+                    }
+
+                    return CoreDriverHandler.update(this.TYPE, values);
                 }
             });
 

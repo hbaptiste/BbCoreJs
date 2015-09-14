@@ -48,6 +48,9 @@ define(
                     Core.exception('MissingPropertyException', 500, 'Property "site_uid" must be set to constructor');
                 }
                 this.maskMng = Mask.createMask({});
+
+                this.config.only_section = this.config.only_section || false;
+
                 this.site_uid = this.config.site_uid;
 
                 this.initializeTree();
@@ -156,7 +159,7 @@ define(
                 var dfd = jQuery.Deferred(),
                     self = this;
 
-                PageRepository.findChildren(node.id, start, this.limit_of_page).done(function (data, response) {
+                PageRepository.findChildren(node.id, start, this.limit_of_page, this.config.only_section).done(function (data, response) {
 
                     self.updateLimit(node, response);
 

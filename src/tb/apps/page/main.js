@@ -22,6 +22,9 @@ require.config({
         'page.routes': 'src/tb/apps/page/routes',
         'page.repository': 'src/tb/apps/page/repository/page.repository',
 
+        //store
+        'page.store': 'src/tb/apps/page/store/page.store',
+
         //Controllers
         'page.main.controller': 'src/tb/apps/page/controllers/main.controller',
 
@@ -43,14 +46,18 @@ require.config({
         'page.view.new': 'src/tb/apps/page/views/page.view.new',
         'page.view.clone': 'src/tb/apps/page/views/page.view.clone',
         'page.view.manage': 'src/tb/apps/page/views/page.view.manage',
+        'page.view.manage.item': 'src/tb/apps/page/views/page.view.manage.item',
         'page.view.tree': 'src/tb/apps/page/views/page.view.tree',
         'page.view.tree.contribution': 'src/tb/apps/page/views/page.view.tree.contribution',
+        'page.view.tree.management': 'src/tb/apps/page/views/page.view.tree.management',
+        'page.view.toolbar': 'src/tb/apps/page/views/page.view.toolbar',
+        'page.view.tree.select.parent': 'src/tb/apps/page/views/page.view.tree.select.parent',
+        'page.view.validation': 'src/tb/apps/page/views/page.view.validation',
 
         //Templates
         'page/tpl': 'src/tb/apps/page/templates',
         'page/tpl/contribution/index': 'src/tb/apps/page/templates/contribution.index.twig',
         'page/tpl/contribution/scheduling_publication': 'src/tb/apps/page/templates/contribution-scheduling.dialog.twig',
-        'page/tpl/manage_list': 'src/tb/apps/page/templates/manage.list.twig',
         'page/widgets/tpl/information_page': 'src/tb/apps/page/widgets/templates/information-page.twig'
 
     }
