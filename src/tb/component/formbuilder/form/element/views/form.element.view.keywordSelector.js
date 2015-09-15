@@ -29,6 +29,7 @@ define(['Core', 'jquery', 'BackBone', 'component!keywordselector', 'Core/Rendere
             this.element = element;
             this.keywordSelector = KeywordSelector.createSelector(this.parseConfig());
             this.bindEvents();
+            this.isRendered = false;
         },
 
         parseConfig : function () {
@@ -43,11 +44,13 @@ define(['Core', 'jquery', 'BackBone', 'component!keywordselector', 'Core/Rendere
             var self = this,
                 keywordContainer;
             this.keywordSelector.on("change", this.handleChange.bind(this));
-            Core.Mediator.subscribeOnce('on:form:render', function (form) {
+            Core.Mediator.subscribe('on:form:render', function (form) {
+                if (self.isRendered) { return true; }
                 keywordContainer = form.find('.element_' + self.element.getKey());
                 self.inputTag = jQuery(keywordContainer).find(".form-infos").eq(0);
                 self.inputTag.val(JSON.stringify(self.previousValue));
                 self.keywordSelector.render(keywordContainer);
+                self.isRendered = true;
             });
         },
 

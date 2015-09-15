@@ -20,7 +20,7 @@
 /*jshint regexp:true */
 /*jslint browser: true */
 
-define(['Core', 'BackBone', 'Core/Utils', 'jquery', 'Core/Renderer', 'text!../autocomplete/template/layout.html', 'jsclass'], function (Core, BackBone, Utils, jQuery, Renderer, layout) {
+define(['Core', 'BackBone', 'Core/Utils', 'jquery', 'Core/Renderer', 'text!../autocomplete/templates/layout.html', 'jsclass'], function (Core, BackBone, Utils, jQuery, Renderer, layout) {
 
     "use strict";
 
