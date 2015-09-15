@@ -67,6 +67,11 @@ define(['component!datastore', 'jsclass'], function (DataStore) {
         return restParams;
     });
 
+    restDataStore.addFilter('byOffset', function (value, restParams) {
+        updateFilters(restParams, 'level_offset', value);
+        return restParams;
+    });
+
     restDataStore.addFilter('byLayout', function (value, restParams) {
         restParams.criterias.layout_uid = value;
         return restParams;

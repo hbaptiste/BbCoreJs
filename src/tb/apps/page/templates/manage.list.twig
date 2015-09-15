@@ -39,7 +39,7 @@
         <div class="bb5-list-data-toolbar bb5-toolbar-order"><!--table header-->
           <div class="row">
             <p class="bb5-toolbar-order-col {{ col7 }}">
-              <input id="bb-page-manage-select-all" type="checkbox">
+              <input class="bb-page-manage-select-all" type="checkbox">
             </p>
             <p class="bb5-toolbar-order-col {{ col1 }}">
               <a href="#" data-sorter="title" data-direction="asc">{{ 'title'|trans }} <i class="fa fa-angle-down"></i></a>
@@ -67,7 +67,7 @@
       <div id="bb-windowpane-south" class="ui-layout-south">
         <p class="selection-toolbar">
           <i class="fa fa-level-up fa-rotate-90"></i> {{ 'apply_to_all_selected_pages'|trans }}
-          <select id="bb-page-manage-grouped-action" class="max-per-page-selector input-xs">
+          <select class="max-per-page-selector input-xs bb-page-manage-grouped-action">
             <option value="0">{{ 'choose_an_action'|trans }}</option>
             <option value="setOnlineGrouped">{{ 'set_online'|trans }}</option>
             <option value="setOfflineGrouped">{{ 'set_offline'|trans }}</option>

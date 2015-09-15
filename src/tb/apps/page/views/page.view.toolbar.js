@@ -22,7 +22,6 @@ define([
          * @returns {Object} PageViewReview
          */
         render: function (layouts) {
-            this.clearFilters();
             return Renderer.render(template, {layouts: layouts});
         },
 

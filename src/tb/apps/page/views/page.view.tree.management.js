@@ -17,7 +17,7 @@
  * along with BackBee. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['page.view.tree.contribution'], function (Parent) {
+define(['Core', 'page.view.tree.contribution', 'jquery'], function (Core, Parent, jQuery) {
     'use strict';
     var PageStore;
 
@@ -31,6 +31,16 @@ define(['page.view.tree.contribution'], function (Parent) {
             if (event.node.is_fake === true) {
                 return;
             }
+
+            var element = jQuery(event.node.element),
+                children = element.children('.jqtree-element'),
+                westBlock = element.parents('.ui-layout-west');
+
+            westBlock.find('.txt-highlight').removeClass('txt-highlight');
+            children.find('span').addClass('txt-highlight');
+
+            PageStore.applyFilter('byStatus', [0, 1, 2, 3]);
+            PageStore.applyFilter('byOffset', 1);
             PageStore.applyFilter('byParent', event.node.uid);
             PageStore.execute();
         },
@@ -40,8 +50,20 @@ define(['page.view.tree.contribution'], function (Parent) {
         },
 
         renderIn: function (selector) {
+            var self = this;
+
             this.view.getTree().done(function (tree) {
                 tree.render(selector);
+
+                if (self.autoLoadRoot) {
+                    self.loadTreeRoot(tree);
+                }
+
+                self.view.on('rootIsLoaded', function () {
+                    var rootNode = tree.invoke('getNodeById', Core.get('root.uid'));
+
+                    jQuery(rootNode.element).children('div.jqtree-element').find('span').addClass('txt-highlight');
+                });
             });
 
             return this;

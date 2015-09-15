@@ -331,7 +331,11 @@ Version: 2.10 Dec2014
 }
 #bb5-ui .txt-highlight,
 #bb5-ui .txt-highlight * {
-  color: #e34c26;
+  color: #e34c26 !important;
+}
+#bb5-ui .txt-black,
+#bb5-ui .txt-black * {
+  color: #333333 !important;
 }
 #bb5-ui .btn,
 #bb5-site-wrapper .content-actions button,
@@ -8074,6 +8078,10 @@ colpick Color Picker / colpick.com
   width: 968px;
   margin: 0 auto!important;
   position: relative;
+}
+#bb5-ui #bb-page-management-trash-view,
+#bb5-ui #bb-page-management-trash-view * {
+  color: #333333;
 }
 #bb5-ui .bb5-ui-width-setter {
   width: 968px;

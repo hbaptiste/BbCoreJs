@@ -23,6 +23,11 @@ define([
      */
     return Backbone.View.extend({
 
+        inputItemClass: 'bb-page-manage-select-page',
+        chooseActionSelectClass: 'bb-page-manage-grouped-action',
+        selectAllClass: 'bb-page-manage-select-all',
+        itemLineClass: 'bb-page-manage-item-line',
+
         /**
          * Initialize of PageViewReview
          */
@@ -31,7 +36,9 @@ define([
             this.pageStore = data.pageStore;
 
             this.pageStore.applySorter('byModified', 'desc');
+            this.pageStore.applyFilter('byOffset', 1);
             this.pageStore.applyFilter('byStatus', [0, 1, 2, 3]);
+            this.pageStore.applyFilter('byParent', Core.get('root.uid'));
 
             this.initTree();
             this.initRange();
@@ -74,13 +81,16 @@ define([
 
         initTree: function () {
             var Tree = require('page.view.tree.management');
+
             this.tree = new Tree({
                 popin: false,
                 do_loading: true,
                 do_pagination: true,
                 site_uid: Core.get('site.uid'),
-                only_section: true
+                only_section: true,
+                autoLoadRoot: true
             });
+
             this.tree.setPageStore(this.pageStore);
         },
 
@@ -119,7 +129,7 @@ define([
 
         initLayout: function (tpl) {
             this.layout = jQuery(tpl).find('#content-library-pane-wrapper').layout({
-                applyDefaultStyles: true,
+                applyDefaultStyles: false,
                 closable: false,
                 west__childOptions: {
                     center__paneSelector: '.inner-center',
@@ -189,7 +199,15 @@ define([
         },
 
         bindTrash: function () {
-            jQuery('#bb-page-management-trash-view').dblclick(function () {
+            var self = this;
+
+            jQuery('#bb-page-management-trash-view').dblclick(function (event) {
+                var element = jQuery(event.currentTarget),
+                    westBlock = self.selector.find('.ui-layout-west');
+
+                westBlock.find('.txt-highlight').removeClass('txt-highlight');
+                element.addClass('txt-highlight');
+
                 this.pageStore.applyFilter('byTrash', [4]);
                 this.pageStore.execute();
             }.bind(this));
@@ -202,27 +220,32 @@ define([
         },
 
         bindGroupedActions: function () {
-            var selectAll = jQuery('#bb-page-manage-select-all'),
-                select = jQuery('#bb-page-manage-grouped-action');
+            var self = this;
 
-            // Don't work correctly
-            selectAll.change(function () {
-                var elems = jQuery('.bb-page-manage-select-page');
+            this.selector.on('change', '.' + this.selectAllClass, function () {
+                var element = jQuery(this);
 
-                if (!selectAll.is(':checked')) {
-                    elems.attr('checked', false);
-                } else {
-                    elems.attr('checked', true);
+                self.selector.find('.' + self.inputItemClass).each(function () {
+                    jQuery(this).prop('checked', element.is(':checked'));
+                });
+            });
+
+            this.selector.on('click', '.' + this.itemLineClass, function () {
+                var input = jQuery(this).find('.' + self.inputItemClass);
+
+                if (input.length > 0) {
+                    input.prop('checked', !input.is(':checked'));
                 }
             });
 
-            select.change(function (event) {
-                var service = jQuery(event.target).find(':checked').val(),
+            this.selector.on('change', '.' + this.chooseActionSelectClass, function (event) {
+                var select = jQuery(this),
+                    service = jQuery(event.target).find(':checked').val(),
                     elems,
                     i,
                     uids = [];
 
-                elems = jQuery('.bb-page-manage-select-page:checked');
+                elems = jQuery('.' + this.inputItemClass + ':checked');
                 select.val(0);
                 if (service === '0' || elems.length === 0) {
                     return;
@@ -280,6 +303,8 @@ define([
             this.popin.display();
             this.popin.mask();
 
+            this.selector = jQuery('#' + this.popin.id);
+
             Core.Scope.subscribe('page', function () { return; }, function () {
                 require('component!popin').hide(this.popin);
             }.bind(this));
@@ -291,13 +316,14 @@ define([
             this.tree.renderIn('#bb-page-management-tree-view');
             this.range.render('#bb-page-management-range-view');
 
-
             this.pageStore.execute();
 
             this.pagination.on('afterRender', function () {
                 jQuery('#content-library-pane-wrapper').layout().resizeAll();
                 this.resizeCenterPane();
+                this.selector.find('.ui-layout-resizer-west').addClass('hidden');
             }.bind(this));
+
             this.pagination.render('#bb-page-management-pagination-view', 'replaceWith');
 
             this.dataview.render('#bb-page-management-data-view');

@@ -66,19 +66,21 @@ define(
                     pageUid = toolbar.attr('data-page-uid'),
                     siteUid = toolbar.attr('data-site-uid'),
                     layoutUid = toolbar.attr('data-layout-uid'),
+                    rootUid = toolbar.attr('data-root-uid'),
                     current_url = localStorage.getItem('current_url');
 
                 if (!toolbar.length) {
                     Core.exception('MissingSelectorException', 500, 'Selector "' + this.config.tbSelector + '" does not exists, MainApplication cannot be initialized.');
                 }
 
-                if (null === pageUid || null === siteUid || null === layoutUid) {
-                    Core.exception('MissingDataException', 500, 'Page uid, Site uid and Layout uid must be set in toolbar');
+                if (null === pageUid || null === siteUid || null === layoutUid || null === rootUid) {
+                    Core.exception('MissingDataException', 500, 'Page uid, Site uid root uid, and Layout uid must be set in toolbar');
                 }
 
                 Core.set('page.uid', pageUid);
                 Core.set('site.uid', siteUid);
                 Core.set('layout.uid', layoutUid);
+                Core.set('root.uid', rootUid);
                 Core.set('menu.id', 'bb5-navbar-primary');
 
                 Core.set('application.main', this);
