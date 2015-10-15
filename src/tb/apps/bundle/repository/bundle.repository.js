@@ -65,6 +65,27 @@ define(
                 return dfd.promise();
             },
 
+            listManageable: function () {
+                var dfd = jQuery.Deferred();
+
+                this.list().done(function (bundles) {
+                    var key,
+                        manageableBundles = [];
+
+                    for (key in bundles) {
+                        if (bundles.hasOwnProperty(key)) {
+                            if (bundles[key].admin_entry_point) {
+                                manageableBundles.push(bundles[key]);
+                            }
+                        }
+                    }
+
+                    dfd.resolve(manageableBundles);
+                });
+
+                return dfd.promise();
+            },
+
             /**
              * Set the activation of bundle
              * @param {Boolean} active

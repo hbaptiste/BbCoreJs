@@ -51,9 +51,9 @@ define(
                 if (typeof this.config.site_uid !== 'string') {
                     Core.exception('MissingPropertyException', 500, 'Property "site_uid" must be set to constructor');
                 }
-                this.tree_isLoaded = false;
+
                 this.isProcessing = false;
-                this.maskMng = Mask.createMask({});
+                this.maskMng = Mask.createMask();
                 this.config.only_section = this.config.only_section || false;
                 this.limit_of_page = this.config.limit_of_page || this.limit_of_page;
                 this.site_uid = this.config.site_uid;
@@ -66,6 +66,41 @@ define(
                 if (this.config.popin === true) {
                     this.tree.showFilter();
                 }
+            },
+
+            initCallStack: function () {
+                var self = this,
+                    stack = {
+                        queue: [],
+                        processDfd: new jQuery.Deferred(),
+
+                        hasTask: function () {
+                            return this.queue.length;
+                        },
+
+                        execute: function () {
+                            if (this.hasTask()) {
+                                try {
+                                    var task = this.queue.shift();
+                                    /* we only queued getTree that returns a promise */
+                                    task.call(self)
+                                        .done(this.processDfd.resolve)
+                                        .fail(function () {
+                                            self.processDfd.reject();
+                                        });
+                                } catch (e) {
+                                    this.processDfd.reject(e);
+                                }
+                            }
+                        },
+                        append: function (func) {
+                            if (typeof func !== 'function') { return false; }
+                            this.queue.push(func);
+                            return this.processDfd.promise();
+                        }
+                    };
+
+                return stack;
             },
 
             hasSiteSelector: function () {
@@ -83,22 +118,20 @@ define(
             handleSiteSelector: function (widget) {
                 var self = this;
                 this.selectedSite = null;
-
+                this.getCallStack = this.initCallStack();
                 this.siteSelector = require("component!siteselector").createSiteSelector({selected : Core.get("site.uid") });
 
                 this.siteSelector.on("ready", function () {
-                    self.tree_isLoaded = false;
                     self.selectedSite = this.getSelectedSite(true);
                     self.site_uid = self.selectedSite.uid;
                     self.siteSelectorIsReady = true;
-                    self.getTree();
+                    self.getCallStack.execute();
                 });
 
                 this.siteSelector.on("siteChange", function (site_uid, site) {
                     self.selectedSite = site;
                     self.site_uid = site_uid;
-                    self.tree_isLoaded = false;
-                    self.getTree();
+                    self.getCallStack.execute();
                 });
 
                 jQuery(widget.find('.site-selector')).html(this.siteSelector.render());
@@ -238,6 +271,7 @@ define(
             * @param {Object} event
             */
             onOpen: function (event) {
+                this.mask();
                 var self = this;
                 if (event.node.is_fake === true) {
                     return;
@@ -253,6 +287,7 @@ define(
                         if (self.treeView.isRoot(event.node)) {
                             self.trigger("rootIsLoaded");
                         }
+                        self.unmask();
                     });
                 }
             },
@@ -490,11 +525,15 @@ define(
             },
 
             mask: function () {
-                this.maskMng.mask(this.treeView.el);
+                if (this.config.popin) {
+                    this.tree.popIn.mask();
+                }
             },
 
             unmask: function () {
-                this.maskMng.unmask(this.treeView.el);
+                if (this.config.popin) {
+                    this.tree.popIn.unmask();
+                }
             },
 
             loadTreeRoot: function () {
@@ -543,16 +582,14 @@ define(
 
             getTree: function () {
                 var self = this,
-                    promise,
+                    dfd = jQuery.Deferred(),
                     rootNode;
-                this.lastTreeDfd = this.lastTreeDfd || jQuery.Deferred();
-                promise = this.lastTreeDfd.promise();
-
-                if (this.tree_isLoaded || this.isProcessing) { return; }
 
                 if (this.hasSiteSelector() && !this.siteSelectorIsReady) {
-                    return promise;
+                    return this.getCallStack.append(this.getTree);
                 }
+
+                this.mask();
 
                 PageRepository.findRoot(self.site_uid).done(function (data) {
                     self.isProcessing = true;
@@ -560,17 +597,16 @@ define(
                         rootNode = data[0];
                         rootNode.id = rootNode.uid;
                         self.treeView.setData([self.formatePageToNode(rootNode)]);
-                        self.tree_isLoaded = true;
-                        self.lastTreeDfd.resolve(self.tree);
-
+                        dfd.resolve(self.tree);
                     }
                 }).fail(function () {
-                    self.lastTreeDfd.reject();
+                    dfd.reject();
                 }).always(function () {
                     self.isProcessing = false;
+                    self.unmask();
                 });
 
-                return promise;
+                return dfd.promise();
             }
         });
 

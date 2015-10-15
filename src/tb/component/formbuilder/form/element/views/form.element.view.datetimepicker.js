@@ -22,16 +22,21 @@ define(
         'Core/Renderer',
         'BackBone',
         'jquery',
-        'moment'
+        'moment',
+        'component!translator'
     ],
-    function (Core, Renderer, Backbone, jQuery, moment) {
+    function (Core, Renderer, Backbone, jQuery, moment, Translator) {
         'use strict';
 
         var DatetimepickerView = Backbone.View.extend({
 
             mainSelector: Core.get('wrapper_toolbar_selector'),
 
+            availableLangs: jQuery.fn.datetimepicker.defaults.i18n,
+
             initialize: function (template, formTag, element) {
+                var lang = Translator.getLocale().substring(0, 2);
+
                 this.el = formTag;
                 this.template = template;
                 this.element = element;
@@ -39,6 +44,8 @@ define(
                 this.buildRenderValue();
 
                 this.bindEvents();
+
+                this.currentLang = this.availableLangs[lang] ? lang : 'en';
             },
 
             buildRenderValue: function () {
@@ -73,14 +80,15 @@ define(
                 });
             },
 
-            manageDatetimepicker: function () {
+            manageDatetimepicker: function (view) {
                 var element = jQuery(this);
 
                 element.datetimepicker({
                     parentID: '#bb5-dialog-container',
                     onGenerate: function () {
                         jQuery(this).css('top', element.position().top + (element.innerHeight() * 2.5));
-                    }
+                    },
+                    lang: view.currentLang
                 });
 
                 element.datetimepicker('show');

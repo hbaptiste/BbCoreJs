@@ -101,7 +101,7 @@ define(['Core', 'bundle.view.list', 'bundle.view.index'], function (Core, ListVi
                 config = {};
             }
 
-            this.repository.list().done(function (data) {
+            this.repository.listManageable().done(function (data) {
                 config.bundles = data;
 
                 self.bundles = config.bundles;
