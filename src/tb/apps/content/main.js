@@ -33,6 +33,9 @@ require.config({
         'resource.repository': 'src/tb/apps/content/repository/resource.repository',
         'keyword.repository': 'src/tb/apps/content/repository/keyword.repository',
 
+        //DataStore
+        'media.datastore': 'src/tb/component/medialibrary/datastore/media.datastore',
+
         //Components
         'content.manager': 'src/tb/apps/content/components/ContentManager',
         'content.dnd.manager': 'src/tb/apps/content/components/DndManager',
@@ -47,6 +50,7 @@ require.config({
         'content.widget.DialogContentsList': 'src/tb/apps/content/widgets/DialogContentsList',
         'content.widget.Breadcrumb': 'src/tb/apps/content/widgets/Breadcrumb',
         'content.widget.Edition': 'src/tb/apps/content/widgets/Edition',
+        'content.widget.DialogAddToMediaLibrary': 'src/tb/apps/content/widgets/DialogAddToMediaLibrary',
 
         //Models
         'content.models.AbstractContent': 'src/tb/apps/content/models/AbstractContent',

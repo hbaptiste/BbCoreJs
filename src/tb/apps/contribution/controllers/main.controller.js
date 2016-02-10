@@ -5,7 +5,10 @@ define(['Core', 'contribution.view.index', 'jquery'], function (Core, IndexView,
     Core.ControllerManager.registerController('MainController', {
         appName: 'contribution',
         config: {
-            imports: []
+            imports: [],
+            define: {
+                indexService: ['content.widget.DialogAddToMediaLibrary']
+            }
         },
         /**
          * Initialize of Contribution Controller
@@ -18,13 +21,16 @@ define(['Core', 'contribution.view.index', 'jquery'], function (Core, IndexView,
             this.kwEditor = null;
         },
 
-        indexService: function () {
+        indexService: function (req) {
             var config = {},
+                addToMediaLibraryWidget,
                 view;
 
             Core.Scope.register('contribution');
 
             if (this.viewIsLoaded !== true) {
+                addToMediaLibraryWidget = req('content.widget.DialogAddToMediaLibrary').getInstance();
+                addToMediaLibraryWidget.init();
 
                 Core.Scope.subscribe('page', function () {
 

@@ -70,7 +70,8 @@ define(
                     getPluginManagerService: ['content.pluginmanager'],
                     saveService: ['component!popin', 'component!translator'],
                     cancelService: ['component!translator'],
-                    validateService: ['component!translator']
+                    validateService: ['component!translator'],
+                    getMediaDatastoreService: ['media.datastore']
                 }
             },
 
@@ -164,13 +165,16 @@ define(
                 return KeywordRepository;
             },
 
+            getMediaDatastoreService: function (req) {
+                return req('media.datastore');
+            },
+
             /**
              * Return the dialog content list widget
              */
             getDialogContentsListWidgetService: function () {
                 return DialogContentsList;
             },
-
             /**
              * Return the definition manager
              */

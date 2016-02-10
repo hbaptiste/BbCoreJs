@@ -164,6 +164,7 @@
     "manage_rights": "Manage rights",
     "manage_users_and_groups": "Manage users and groups",
     "media": "Media",
+    "media_already_in_medialibrary": "This content is already in the media library",
     "media_height": "H",
     "media_width": "W",
     "media_library": "Media library",
@@ -235,6 +236,7 @@
     "publish_now": "Publish now",
 
     "redirect_to": "Redirect to",
+    "remember_my_choice": "Remember my choice",
     "remove": "Remove",
     "remove_content": "Remove content",
     "remove_content_confirmation_message": "Remove this content?",
@@ -250,6 +252,7 @@
 
     "save": "Save",
     "save_as_draft": "Save as draft",
+    "save_in_media_library": "Save this image in the media library",
     "save_draft": "Save draft",
     "save_status": "Save status",
     "saving_confirmation": "Saving Confirmation",

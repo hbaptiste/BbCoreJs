@@ -136,6 +136,21 @@ define('tb.component/session/session', ['Core', 'Core/Utils', 'jsclass'], functi
             return this;
         },
 
+        getItem: function (key) {
+            var data = JSON.parse(this.storage.getItem(this.STORAGE_KEY));
+            return data[key];
+        },
+
+        setItem: function (key, value) {
+            try {
+                var data = JSON.parse(this.storage.getItem(this.STORAGE_KEY));
+                data[key] = value;
+                this.storage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                Core.exception.silent('SessionException', 550, 'Error during the session loading', {error: e});
+            }
+        },
+
         isValidAuthentication: function () {
             if (null !== this.key && null !== this.signature) {
                 return true;

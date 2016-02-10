@@ -163,6 +163,7 @@
     "manage_rights": "Gérer les droits",
     "manage_users_and_groups": "Gérer les droits et les groupes",
     "media": "Média",
+    "media_already_in_medialibrary": "Ce contenu est déjà dans la médiathèque",
     "media_height": "H",
     "media_width": "L",
     "media_library": "Médiathèque",
@@ -234,6 +235,7 @@
     "publish_now": "Publier maintenant",
 
     "redirect_to": "Rediriger vers",
+    "remember_my_choice": "Se rappeler de mon choix",
     "remove": "Supprimer",
     "remove_content": "Supprimer le contenu",
     "remove_content_confirmation_message": "Supprimer ce contenu ?",
@@ -249,6 +251,7 @@
 
     "save": "Enregistrer",
     "save_as_draft": "Brouillon",
+    "save_in_media_library" : "Enregistrer cette image dans la médiathèque",
     "save_draft": "Sauvegarder le brouillon",
     "save_status": "Sauvegarder le statut",
     "saving_confirmation": "Confirmation de la sauvegarde",

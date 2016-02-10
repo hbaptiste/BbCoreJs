@@ -74,19 +74,34 @@ define(
                 });
             },
 
-            doDropMedia: function (event) {
+            handleDropMedia: function (event) {
+                var file = event.dataTransfer.files[0],
+                    content = ContentManager.getContentByNode(jQuery(event.target)),
+                    mask = Mask.createMask(),
+                    maskTarget = content.jQueryObject.parent().parent(),
+                    dropContext = {
+                        hasListener: false,
+                        process: this.doDropMedia.bind(this, event, file)
+                    };
+
+                mask.mask(maskTarget);
+
+                Core.Mediator.publish('on:classcontent:beforedropmedia', dropContext);
+
+                if (!dropContext.hasListener) {
+                    this.doDropMedia(event, file);
+                }
+            },
+
+            doDropMedia: function (event, file) {
                 var target = jQuery(event.target),
-                    file = event.dataTransfer.files[0],
                     reader = new window.FileReader(),
                     content = ContentManager.getContentByNode(target),
                     mask = Mask.createMask(),
                     maskTarget = content.jQueryObject.parent().parent(),
                     self = this;
 
-                mask.mask(maskTarget);
-
                 reader.onload = function (e) {
-
                     var data = {
                             'src': window.btoa(e.target.result),
                             'originalname': file.name
@@ -98,14 +113,19 @@ define(
                         elements.path = response.path;
                         elements.originalname = response.originalname;
                         content.setElements(elements);
-                        self.removeImgWrap();
 
+                        self.removeImgWrap();
                         ApplicationManager.invokeService('content.main.save', true).done(function (promise) {
+
                             promise.done(function () {
+
+                                Core.Mediator.publish('on:classcontent:afterdropmedia', content, file);
+
                                 content.getParent().refresh().done(function () {
                                     mask.unmask(maskTarget);
                                     content.jQueryObject.unwrap();
                                 });
+
                             });
                         });
                     });
@@ -119,7 +139,7 @@ define(
 
                 if (event.dataTransfer.files.length > 0) {
 
-                    this.doDropMedia(event);
+                    this.handleDropMedia(event);
 
                     return;
                 }
