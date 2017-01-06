@@ -340,6 +340,11 @@ fieldset[disabled] #bb5-ui .btn {
   color: #363636;
   text-transform: uppercase;
 }
+#bb5-ui .btn-default-grey.active {
+  color: #fff;
+  background-color: #e34c26;
+  border-color: #e34c26;
+}
 #bb5-ui .btn-default-grey:hover,
 #bb5-ui .btn-default-grey:active,
 #bb5-ui .btn-default-grey.active,

@@ -7098,6 +7098,12 @@ Rich editor
 #bb5-site-wrapper .content-actions a {
   border: 1px solid #CDCDCD;
 }
+#bb5-ui .btn-default.active,
+#bb5-ui .btn-default-grey.active {
+  color: #fff;
+  background-color: #e34c26;
+  border-color: #e34c26;
+}
 #bb5-ui .btn-default-grey,
 #bb5-site-wrapper .content-actions button,
 #bb5-site-wrapper .content-actions a {

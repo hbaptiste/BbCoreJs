@@ -31,7 +31,7 @@ define(['Core', 'jquery', 'component!dataview', 'component!popin','Core/Utils'],
                 pages: 'pages',
                 blocks: 'blocks',
                 extensions: 'extensions',
-                user: 'users',
+                users: 'users',
                 media: 'media'
             };
 
@@ -60,10 +60,8 @@ define(['Core', 'jquery', 'component!dataview', 'component!popin','Core/Utils'],
             if (jQuery(button).hasClass("btn-primary")) {
                 return false;
             }
-            jQuery(button).closest(".right-list").css({"border": "1px solid red"});
-
-            jQuery(button).closest(".right-list").find(".btn-primary").removeClass("btn-primary").addClass("btn-default-grey");
-            jQuery(button).removeClass("btn-default-grey").addClass("btn-primary");
+            jQuery(button).closest(".right-nav-list").find(".active").removeClass("active");
+            jQuery(button).addClass("active");
         },
 
         createMainPopin: function () {
@@ -77,7 +75,7 @@ define(['Core', 'jquery', 'component!dataview', 'component!popin','Core/Utils'],
                 id: "id-main-right-popin",
                 title: "Right management",
                 open: function () {
-                    alert("createMainPopin");
+                   return;
                 }
             });
         },
@@ -107,10 +105,12 @@ define(['Core', 'jquery', 'component!dataview', 'component!popin','Core/Utils'],
                 componentPath += componentName + ".view";
                 require("Core/Utils").requireWithPromise([componentPath]).done(function (ComponentView) {
                     if (typeof component !== "function") {
-                        componentInstance = new ComponentView({el:"test"});
+                        componentInstance = new ComponentView();
                         self.handleComponent(componentName, componentInstance);
                     }
-                }).fail(function () { console.log(arguments); alert("ici"); });
+                }).fail(function () {
+                    console.log(arguments);
+                });
             } else {
                 this.handleComponent(componentName, component, false);
             }
@@ -141,6 +141,6 @@ define(['Core', 'jquery', 'component!dataview', 'component!popin','Core/Utils'],
 
     });
 
-},function(){
-    console.log(" Radical blaze ... ");
+},function (reason) {
+    console.log(reason);
 });

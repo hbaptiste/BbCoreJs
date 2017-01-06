@@ -36,7 +36,7 @@ define(['jquery'], function (jQuery) {
         },
 
         render: function () {
-            this.content.html("<p class='t'>extensions</p>");
+            this.content.html("<p class='t'>media</p>");
             return this.content;
         }
     });
