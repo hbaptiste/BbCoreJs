@@ -25,9 +25,15 @@ define(['Core'], function (Core) {
     Core.RouteManager.registerRoute('user', {
         prefix: 'user',
         routes: {
+
             index: {
                 url: '/index',
                 action: 'MainController:index'
+            },
+
+            right: {
+                url: "/right",
+                action: "RightController:index"
             }
         }
     });

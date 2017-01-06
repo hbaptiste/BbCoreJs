@@ -23,7 +23,9 @@ require.config({
         'user.routes': 'src/tb/apps/user/routes',
         'user.main.controller': 'src/tb/apps/user/controllers/main.controller',
         'user.user.controller': 'src/tb/apps/user/controllers/user.controller',
-        'user.group.controller': 'src/tb/apps/user/controllers/group.controller'
+        'user.group.controller': 'src/tb/apps/user/controllers/group.controller',
+        'user.right.controller': 'src/tb/apps/user/controllers/right.controller',
+
     }
 });
 
