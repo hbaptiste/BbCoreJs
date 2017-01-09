@@ -27,24 +27,15 @@
             },
 
             onInit: function () {
-                this.mainView = new MainRightView({"template": tpl});
                 this.app = Core.get('application.user');
+                // app.popin is defined in user:controller:main.controller
             },
 
-            clearScreen: function () {
-                /* append the data view */
-                this.mainContainer.html("<p>I'm here</p>");
-            },
-
-            handleCategory: function (category) {
-            // show the right view according to the category
-            },
-
-            /* handle parameters in url */
             indexAction: function () {
+                this.mainView = new MainRightView({"template": tpl});
+                this.app.rightView = this.mainView;
+                /* When the component is loaded, [render] will be called */
                 this.mainView.setComponent("layout");
-                this.mainView.render();
-                alert("indexAction");
                 return;
             }
 

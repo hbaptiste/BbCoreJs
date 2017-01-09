@@ -62,6 +62,7 @@ define('app.user', ['Core', 'user/views/toolbar.view'], function (Core, View) {
             this.popin.popinManager.destroy(this.popin.popin);
             this.popin.unbindDnD();
             this.popin = null;
+            
         }
     });
 });

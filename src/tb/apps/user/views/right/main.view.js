@@ -74,9 +74,9 @@ define(['Core', 'jquery', 'component!dataview', 'component!popin','Core/Utils'],
                 draggable: false,
                 id: "id-main-right-popin",
                 title: "Right management",
-                open: function () {
-                   return;
-                }
+                close: function () {
+
+                },
             });
         },
 
@@ -126,7 +126,6 @@ define(['Core', 'jquery', 'component!dataview', 'component!popin','Core/Utils'],
         },
 
         render: function () {
-
             if (!this.currentComponent) {
                 throw "ComponentNotFoundException";
             }

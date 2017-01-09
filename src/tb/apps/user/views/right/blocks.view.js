@@ -24,10 +24,10 @@ define(['jquery'], function (jQuery) {
     return Backbone.View.extend({
 
         initialize: function () {
-           this.content = jQuery("<div>").eq(0);
-           this.bindEvents();
+            this.content = jQuery("<div>").eq(0);
+            this.bindEvents();
         },
-
+        
         bindEvents: function () {
 
             this.content.on("click", '.t', function(e) {
